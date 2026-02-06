@@ -151,7 +151,7 @@ const { title } = Astro.props;
 }
 	</style>
 	<body>
-		<!-- <div 
+		<div 
 			id="preloader"
 			class="preloader-container"
       style="background-color: #fff;"
@@ -192,7 +192,7 @@ const { title } = Astro.props;
 					<div>(<span id="percentageText">100%</span>)</div>
 				</div>
 			</span>
-		</div> -->
+		</div>
 
 		<BlobAnimation client:only/>
 		<Header/>
@@ -202,6 +202,9 @@ const { title } = Astro.props;
 	</body>
 	<script>
 		import { gsap } from "gsap/dist/gsap";
+		import ScrollTrigger from "gsap/dist/ScrollTrigger";
+
+		gsap.registerPlugin(ScrollTrigger);
 
 		// refs
 		const container = document.getElementById("preloader");
