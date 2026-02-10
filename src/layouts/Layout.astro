@@ -328,7 +328,6 @@ import ScrollSmoother from "gsap/dist/ScrollSmoother";
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
-// Crear ScrollSmoother primero para que ScrollTrigger use el mismo contexto de scroll
 const scroller = ScrollSmoother.create({
 	wrapper: "#smooth-wrapper",
 	content: "#smooth-content",
@@ -337,27 +336,66 @@ const scroller = ScrollSmoother.create({
 	smoothTouch: 0.1,
 });
 
-const sections = gsap.utils.toArray(".section");
+const sections = gsap.utils.toArray<HTMLElement>(".section");
 const numSections = sections.length;
 
-// Snap fluido a secciones: solo si hay más de una sección
-if (numSections > 1) {
-	const snapIncrement = 1 / (numSections - 1);
+if (numSections === 0) throw new Error("No .section elements found");
 
-	ScrollTrigger.create({
+let currentSectionIndex = 0;
+let animating = false;
+const SNAP_DURATION = 0.75;
+
+// Fijar posición inicial en la sección más cercana (sin scroll libre)
+function lockToNearestSection() {
+	const t = ScrollTrigger.create({
 		trigger: document.body,
 		start: "top top",
 		end: "bottom bottom",
-		snap: {
-			snapTo: (progress) => Math.round(progress / snapIncrement) * snapIncrement,
-			duration: { min: 0.35, max: 0.7 },
-			delay: 0.08,
-			ease: "power2.inOut",
-			directional: true,
-		},
 	});
+	ScrollTrigger.refresh();
+	const idx = Math.min(Math.max(0, Math.round(t.progress * (numSections - 1))), numSections - 1);
+	currentSectionIndex = idx;
+	scroller.scrollTo(sections[currentSectionIndex] as HTMLElement, false);
+	t.kill();
 }
 
+function goToSection(index) {
+	if (index < 0 || index >= numSections) return;
+	animating = true;
+	currentSectionIndex = index;
+	scroller.scrollTo(sections[index] as HTMLElement, true);
+	gsap.delayedCall(SNAP_DURATION, () => { animating = false; });
+}
+
+// Scroll solo por secciones: bloquea scroll nativo y mueve a siguiente/anterior
+ScrollTrigger.observe({
+	target: document.body,
+	type: "wheel,touch",
+	preventDefault: true,
+	tolerance: 15,
+	onUp: () => {
+		if (animating) return;
+		if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
+	},
+	onDown: () => {
+		if (animating) return;
+		if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
+	},
+});
+
+// Bloquear scroll por teclado (flechas, Page Up/Down, espacio) para mantener solo secciones
+document.addEventListener("keydown", (e) => {
+	if (["Space", "ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(e.key)) {
+		e.preventDefault();
+		if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
+			if (!animating && currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
+		} else if (e.key === "ArrowUp" || e.key === "PageUp") {
+			if (!animating && currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
+		}
+	}
+}, { passive: false });
+
+lockToNearestSection();
 
 </script>
 
