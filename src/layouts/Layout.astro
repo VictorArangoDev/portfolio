@@ -328,25 +328,35 @@ import ScrollSmoother from "gsap/dist/ScrollSmoother";
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
-const sections = gsap.utils.toArray(".section");
-
-ScrollTrigger.create({
-  trigger: document.body,
-  start: "top top",
-  end: "bottom bottom",
-  snap: {
-    snapTo: 1 / (sections.length - 1), 
-  	 duration: 0.2,
-        ease: "power2",
-  }
-});
-
-
-let scroller = ScrollSmoother.create({
+// Crear ScrollSmoother primero para que ScrollTrigger use el mismo contexto de scroll
+const scroller = ScrollSmoother.create({
+	wrapper: "#smooth-wrapper",
+	content: "#smooth-content",
 	smooth: 1,
 	effects: true,
-
+	smoothTouch: 0.1,
 });
+
+const sections = gsap.utils.toArray(".section");
+const numSections = sections.length;
+
+// Snap fluido a secciones: solo si hay más de una sección
+if (numSections > 1) {
+	const snapIncrement = 1 / (numSections - 1);
+
+	ScrollTrigger.create({
+		trigger: document.body,
+		start: "top top",
+		end: "bottom bottom",
+		snap: {
+			snapTo: (progress) => Math.round(progress / snapIncrement) * snapIncrement,
+			duration: { min: 0.35, max: 0.7 },
+			delay: 0.08,
+			ease: "power2.inOut",
+			directional: true,
+		},
+	});
+}
 
 
 </script>

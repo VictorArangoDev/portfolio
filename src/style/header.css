@@ -188,8 +188,10 @@ svg {
 .section {
   width: 100%;
   height: 100vh;
+  min-height: 100vh;
   padding: 1rem 1rem;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .main {
@@ -1449,7 +1451,9 @@ button {
   align-items: start;
   width: 100%;
   height: 100vh;
+  min-height: 100vh;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
  .panel {
