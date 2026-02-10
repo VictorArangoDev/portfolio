@@ -1,108 +1,110 @@
+---
+import Title from "./title.astro";
 
-
-
-
-
-  <div class="swipe-section">
-   <section class="panel light x-100">
-    <h2 class="panel__number">2</h2>
+---
+<!-- <section class="section project-section section-animation" id="projects">-->
+  <section class="swipe-section section section-animation" id="projects" data-speed="1">
+    <Title title="Projects" /> 
+    <section class="panel light x-100">
+      <h2 class="panel__number">2</h2>
+    </section>
+    <section class="panel x-100">
+      <h2 class="panel__number">3</h2>
+    </section>
+    <section class="panel light x-100">
+      <h2 class="panel__number">4</h2>
+    </section>
+    <section class="panel light x-100">
+      <h2 class="panel__number">5</h2>
+    </section>
+    <section class="panel light x-100">
+      <h2 class="panel__number">6</h2>
+    </section>
+    <section class="panel light x-100">
+      <h2 class="panel__number">7</h2>
+    </section>
   </section>
-  <section class="panel x-100">
-    <h2 class="panel__number">3</h2>
-  </section>
-  <section class="panel light x-100">
-    <h2 class="panel__number">4</h2>
-  </section>
-  <section class="panel light x-100">
-    <h2 class="panel__number">4</h2>
-  </section>
-  <section class="panel light x-100">
-    <h2 class="panel__number">4</h2>
-  </section>
-  <section class="panel light x-100">
-    <h2 class="panel__number">4</h2>
-  </section>
-  </div>
+</section>
 
+<!-- <script>
+  import { gsap } from "gsap";
+  import ScrollTrigger from "gsap/dist/ScrollTrigger";
+  import { Observer } from "gsap/Observer";
 
-  <script>
-    import { gsap } from "gsap";
-import ScrollTrigger from "gsap/dist/ScrollTrigger";
-import { Observer } from "gsap/Observer";
+  gsap.registerPlugin(ScrollTrigger, Observer);
 
-gsap.registerPlugin(ScrollTrigger, Observer);
+  const swipePanels = gsap.utils.toArray(".swipe-section .panel") as Element[];
+  const OFFSCREEN_X = 120;
 
-const swipePanels = gsap.utils.toArray(".swipe-section .panel") as Element[];
-const OFFSCREEN_X = 120;
+  let currentIndex = -1;
+  let animating = false;
 
-let currentIndex = -1;
-let animating = false;
+  gsap.set(swipePanels, {
+    xPercent: OFFSCREEN_X,
+    zIndex: (i) => swipePanels.length - i,
+  });
 
-// Panels completamente fuera del viewport
-gsap.set(swipePanels, {
-  xPercent: OFFSCREEN_X,
-  zIndex: i => swipePanels.length - i
-});
+  const intentObserver = Observer.create({
+    target: ".swipe-section",
+    type: "wheel,touch",
+    wheelSpeed: -1,
+    tolerance: 8,
+    preventDefault: true,
+    lockAxis: true,
+    onUp: () => !animating && gotoPanel(currentIndex + 1, true),
+    onDown: () => !animating && gotoPanel(currentIndex - 1, false),
+  });
 
-const intentObserver = Observer.create({
-  target: ".swipe-section",
-  type: "wheel,touch",
-  wheelSpeed: -1,
-  tolerance: 8,
-  preventDefault: true,
-  lockAxis: true, 
-  onUp: () => !animating && gotoPanel(currentIndex + 1, true),
-  onDown: () => !animating && gotoPanel(currentIndex - 1, false)
-});
+  intentObserver.disable();
 
-intentObserver.disable();
+  function gotoPanel(index, isScrollingDown) {
+    animating = true;
 
-function gotoPanel(index, isScrollingDown) {
-  animating = true;
+    if (
+      (index === swipePanels.length && isScrollingDown) ||
+      (index < 0 && !isScrollingDown)
+    ) {
+      animating = false;
+      intentObserver.disable();
+      return;
+    }
 
-  // límites
-  if (
-    (index === swipePanels.length && isScrollingDown) ||
-    (index < 0 && !isScrollingDown)
-  ) {
-    animating = false;
-    intentObserver.disable();
-    return;
+    if (isScrollingDown) {
+      gsap.to(swipePanels[index], {
+        xPercent: 0,
+        duration: 0.7,
+        ease: "power2.out",
+        onComplete: () => {
+          animating = false;
+        },
+      });
+    } else {
+      gsap.to(swipePanels[currentIndex], {
+        xPercent: OFFSCREEN_X,
+        duration: 0.7,
+        ease: "power2.in",
+        onComplete: () => {
+          animating = false;
+        },
+      });
+    }
+
+    currentIndex = index;
   }
 
-  if (isScrollingDown) {
-    gsap.to(swipePanels[index], {
-      xPercent: 0,
-      duration: 0.7,
-      ease: "power2.out",
-      onComplete: () => {(animating = false)}
-    });
-  } else {
-    gsap.to(swipePanels[currentIndex], {
-      xPercent: OFFSCREEN_X,
-      duration: 0.7,
-      ease: "power2.in",
-      onComplete: () => {(animating = false)}
-    });
-  }
-
-  currentIndex = index;
-}
-
-ScrollTrigger.create({
-  trigger: ".swipe-section",
-  start: "top top",
-  end: "+=1",
-  pin: true,
-  anticipatePin: 1,
-  onEnter: () => {
-    intentObserver.enable();
-    gotoPanel(currentIndex + 1, true);
-  },
-  onEnterBack: () => {
-    intentObserver.enable();
-    gotoPanel(currentIndex - 1, false);
-  }
-});
-
-  </script>
+  ScrollTrigger.create({
+    trigger: ".swipe-section",
+    start: "top top",
+    end: "+=1",
+    pin: true,
+    anticipatePin: 1,
+    onEnter: () => {
+      intentObserver.enable();
+      gotoPanel(currentIndex + 1, true);
+    },
+    onEnterBack: () => {
+      intentObserver.enable();
+      gotoPanel(currentIndex - 1, false);
+    },
+  });
+</script> -->
