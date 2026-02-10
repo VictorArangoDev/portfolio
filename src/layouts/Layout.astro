@@ -367,20 +367,32 @@ function goToSection(index) {
 	gsap.delayedCall(SNAP_DURATION, () => { animating = false; });
 }
 
-// Scroll solo por secciones: bloquea scroll nativo y mueve a siguiente/anterior
+// Scroll solo por secciones; cuando la sección Projects está activa (paneles), no cambiar de sección
+declare global {
+	interface Window {
+		__projectsSectionActive?: boolean;
+	}
+}
 ScrollTrigger.observe({
 	target: document.body,
 	type: "wheel,touch",
 	preventDefault: true,
 	tolerance: 15,
 	onUp: () => {
-		if (animating) return;
+		if (animating || window.__projectsSectionActive) return;
 		if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
 	},
 	onDown: () => {
-		if (animating) return;
+		if (animating || window.__projectsSectionActive) return;
 		if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
 	},
+});
+
+window.addEventListener("scrollToNextSection", () => {
+	if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
+});
+window.addEventListener("scrollToPrevSection", () => {
+	if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
 });
 
 // Bloquear scroll por teclado (flechas, Page Up/Down, espacio) para mantener solo secciones

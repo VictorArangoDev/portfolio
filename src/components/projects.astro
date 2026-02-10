@@ -2,38 +2,38 @@
 import Title from "./title.astro";
 
 ---
-<!-- <section class="section project-section section-animation" id="projects">-->
-  <section class="swipe-section section section-animation" id="projects" data-speed="1">
-    <Title title="Projects" /> 
-    <section class="panel light x-100">
-      <h2 class="panel__number">2</h2>
-    </section>
-    <section class="panel x-100">
-      <h2 class="panel__number">3</h2>
-    </section>
-    <section class="panel light x-100">
-      <h2 class="panel__number">4</h2>
-    </section>
-    <section class="panel light x-100">
-      <h2 class="panel__number">5</h2>
-    </section>
-    <section class="panel light x-100">
-      <h2 class="panel__number">6</h2>
-    </section>
-    <section class="panel light x-100">
-      <h2 class="panel__number">7</h2>
-    </section>
+<section class="swipe-section section section-animation" id="projects" data-speed="1">
+  <Title title="Projects" />
+  <section class="panel light x-100">
+    <h2 class="panel__number">2</h2>
+  </section>
+  <section class="panel x-100">
+    <h2 class="panel__number">3</h2>
+  </section>
+  <section class="panel light x-100">
+    <h2 class="panel__number">4</h2>
+  </section>
+  <section class="panel light x-100">
+    <h2 class="panel__number">5</h2>
+  </section>
+  <section class="panel light x-100">
+    <h2 class="panel__number">6</h2>
+  </section>
+  <section class="panel light x-100">
+    <h2 class="panel__number">7</h2>
   </section>
 </section>
 
-<!-- <script>
+<script>
   import { gsap } from "gsap";
   import ScrollTrigger from "gsap/dist/ScrollTrigger";
-  import { Observer } from "gsap/Observer";
 
-  gsap.registerPlugin(ScrollTrigger, Observer);
+  gsap.registerPlugin(ScrollTrigger);
 
-  const swipePanels = gsap.utils.toArray(".swipe-section .panel") as Element[];
+  const swipeSection = document.querySelector(".swipe-section");
+  if (!swipeSection) throw new Error("No .swipe-section found");
+
+  const swipePanels = gsap.utils.toArray<HTMLElement>(".swipe-section .panel");
   const OFFSCREEN_X = 120;
 
   let currentIndex = -1;
@@ -41,11 +41,11 @@ import Title from "./title.astro";
 
   gsap.set(swipePanels, {
     xPercent: OFFSCREEN_X,
-    zIndex: (i) => swipePanels.length - i,
+    zIndex: (i: number) => swipePanels.length - i,
   });
 
-  const intentObserver = Observer.create({
-    target: ".swipe-section",
+  const intentObserver = ScrollTrigger.observe({
+    target: swipeSection,
     type: "wheel,touch",
     wheelSpeed: -1,
     tolerance: 8,
@@ -57,15 +57,21 @@ import Title from "./title.astro";
 
   intentObserver.disable();
 
-  function gotoPanel(index, isScrollingDown) {
+  function gotoPanel(index: number, isScrollingDown: boolean) {
     animating = true;
 
-    if (
-      (index === swipePanels.length && isScrollingDown) ||
-      (index < 0 && !isScrollingDown)
-    ) {
+    if (index === swipePanels.length && isScrollingDown) {
       animating = false;
       intentObserver.disable();
+      (window as typeof window & { __projectsSectionActive?: boolean }).__projectsSectionActive = false;
+      window.dispatchEvent(new Event("scrollToNextSection"));
+      return;
+    }
+    if (index < 0 && !isScrollingDown) {
+      animating = false;
+      intentObserver.disable();
+      (window as typeof window & { __projectsSectionActive?: boolean }).__projectsSectionActive = false;
+      window.dispatchEvent(new Event("scrollToPrevSection"));
       return;
     }
 
@@ -99,12 +105,20 @@ import Title from "./title.astro";
     pin: true,
     anticipatePin: 1,
     onEnter: () => {
+      (window as typeof window & { __projectsSectionActive?: boolean }).__projectsSectionActive = true;
       intentObserver.enable();
       gotoPanel(currentIndex + 1, true);
     },
     onEnterBack: () => {
+      (window as typeof window & { __projectsSectionActive?: boolean }).__projectsSectionActive = true;
       intentObserver.enable();
-      gotoPanel(currentIndex - 1, false);
+      gotoPanel(swipePanels.length - 1, true);
+    },
+    onLeave: () => {
+      (window as typeof window & { __projectsSectionActive?: boolean }).__projectsSectionActive = false;
+    },
+    onLeaveBack: () => {
+      (window as typeof window & { __projectsSectionActive?: boolean }).__projectsSectionActive = false;
     },
   });
-</script> -->
+</script>
