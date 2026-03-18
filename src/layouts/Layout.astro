@@ -320,95 +320,346 @@ const { title } = Astro.props;
 
 		start();
 	</script>
-	<script>
+<script>
 
-import { gsap } from "gsap";
-import ScrollTrigger from "gsap/dist/ScrollTrigger";
-import ScrollSmoother from "gsap/dist/ScrollSmoother";
-
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
-
-const scroller = ScrollSmoother.create({
-	wrapper: "#smooth-wrapper",
-	content: "#smooth-content",
-	smooth: 1,
-	effects: true,
-	smoothTouch: 0.1,
-});
-
-const sections = gsap.utils.toArray<HTMLElement>(".section");
-const numSections = sections.length;
-
-if (numSections === 0) throw new Error("No .section elements found");
-
-let currentSectionIndex = 0;
-let animating = false;
-const SNAP_DURATION = 0.75;
-
-// Fijar posición inicial en la sección más cercana (sin scroll libre)
-function lockToNearestSection() {
-	const t = ScrollTrigger.create({
-		trigger: document.body,
-		start: "top top",
-		end: "bottom bottom",
-	});
-	ScrollTrigger.refresh();
-	const idx = Math.min(Math.max(0, Math.round(t.progress * (numSections - 1))), numSections - 1);
-	currentSectionIndex = idx;
-	scroller.scrollTo(sections[currentSectionIndex] as HTMLElement, false);
-	t.kill();
-}
-
-function goToSection(index) {
-	if (index < 0 || index >= numSections) return;
-	animating = true;
-	currentSectionIndex = index;
-	scroller.scrollTo(sections[index] as HTMLElement, true);
-	gsap.delayedCall(SNAP_DURATION, () => { animating = false; });
-}
-
-// Scroll solo por secciones; cuando la sección Projects está activa (paneles), no cambiar de sección
-declare global {
-	interface Window {
-		__projectsSectionActive?: boolean;
-	}
-}
-ScrollTrigger.observe({
-	target: document.body,
-	type: "wheel,touch",
-	preventDefault: true,
-	tolerance: 15,
-	onUp: () => {
-		if (animating || window.__projectsSectionActive) return;
-		if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
-	},
-	onDown: () => {
-		if (animating || window.__projectsSectionActive) return;
-		if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
-	},
-});
-
-window.addEventListener("scrollToNextSection", () => {
-	if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
-});
-window.addEventListener("scrollToPrevSection", () => {
-	if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
-});
-
-// Bloquear scroll por teclado (flechas, Page Up/Down, espacio) para mantener solo secciones
-document.addEventListener("keydown", (e) => {
-	if (["Space", "ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(e.key)) {
-		e.preventDefault();
-		if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
-			if (!animating && currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
-		} else if (e.key === "ArrowUp" || e.key === "PageUp") {
-			if (!animating && currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
+  	declare global {
+			interface Window {
+				__projectsSectionActive?: boolean;
+			}
 		}
-	}
-}, { passive: false });
+import { gsap } from "gsap";
+  import ScrollTrigger from "gsap/dist/ScrollTrigger";
+  import ScrollSmoother from "gsap/dist/ScrollSmoother";
 
-lockToNearestSection();
+  gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
+  // ─── ScrollSmoother ───────────────────────────────────────────────────────
+  const scroller = ScrollSmoother.create({
+    wrapper: "#smooth-wrapper",
+    content: "#smooth-content",
+    smooth: 1,
+    effects: true,
+    smoothTouch: 0.1,
+  });
+
+  // ─── Section snapping ─────────────────────────────────────────────────────
+  const sections = gsap.utils.toArray<HTMLElement>(".section");
+  const numSections = sections.length;
+  if (numSections === 0) throw new Error("No .section elements found");
+
+  let currentSectionIndex = 0;
+  let animating = false;
+  const SNAP_DURATION = 0.75;
+
+  function lockToNearestSection() {
+    const t = ScrollTrigger.create({
+      trigger: document.body,
+      start: "top top",
+      end: "bottom bottom",
+    });
+    ScrollTrigger.refresh();
+    const idx = Math.min(
+      Math.max(0, Math.round(t.progress * (numSections - 1))),
+      numSections - 1
+    );
+    currentSectionIndex = idx;
+    scroller.scrollTo(sections[currentSectionIndex], false);
+    t.kill();
+  }
+
+  function goToSection(index: number) {
+    if (index < 0 || index >= numSections) return;
+    animating = true;
+    currentSectionIndex = index;
+    scroller.scrollTo(sections[index], true);
+    gsap.delayedCall(SNAP_DURATION, () => { animating = false; });
+  }
+
+  // Desktop: wheel only en el body (touch se maneja por separado abajo)
+  ScrollTrigger.observe({
+    target: document.body,
+    type: "wheel",
+    preventDefault: true,
+    tolerance: 15,
+    onUp: () => {
+      if (animating || window.__projectsSectionActive) return;
+      if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
+    },
+    onDown: () => {
+      if (animating || window.__projectsSectionActive) return;
+      if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
+    },
+  });
+
+  // Mobile: touch nativo en el body, con detección de dirección
+  // Solo actúa si __projectsSectionActive es false
+  let bodyTouchStartY = 0;
+  let bodyTouchStartX = 0;
+
+  document.addEventListener("touchstart", (e) => {
+    bodyTouchStartY = e.touches[0].clientY;
+    bodyTouchStartX = e.touches[0].clientX;
+  }, { passive: true });
+
+  document.addEventListener("touchend", (e) => {
+    if (window.__projectsSectionActive) return;
+    if (animating) return;
+
+    const deltaY = bodyTouchStartY - e.changedTouches[0].clientY;
+    const deltaX = bodyTouchStartX - e.changedTouches[0].clientX;
+
+    // Solo actúa si el gesto es predominantemente vertical
+    if (Math.abs(deltaY) < Math.abs(deltaX)) return;
+    // Umbral mínimo de swipe
+    if (Math.abs(deltaY) < 30) return;
+
+    if (deltaY > 0) {
+      if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
+    } else {
+      if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
+    }
+  }, { passive: true });
+
+  window.addEventListener("scrollToNextSection", () => {
+    if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
+  });
+  window.addEventListener("scrollToPrevSection", () => {
+    if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (!["Space", "ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(e.code)) return;
+    e.preventDefault();
+    if (animating) return;
+    if (["ArrowDown", "PageDown", "Space"].includes(e.code)) {
+      if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
+    } else {
+      if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
+    }
+  }, { passive: false });
+
+  lockToNearestSection();
+
+  // ─── Projects swipe panels ────────────────────────────────────────────────
+  const swipeSection = document.querySelector<HTMLElement>(".swipe-section");
+
+  if (swipeSection) {
+    const swipePanels = gsap.utils.toArray<HTMLElement>(".swipe-section .panel");
+    const total = swipePanels.length;
+    const OFFSCREEN_X = 100;
+
+    let panelIndex = -1;
+    let panelAnimating = false;
+
+    type Direction = "down" | "up";
+    const queue: Direction[] = [];
+
+    function enqueue(dir: Direction) {
+      const nextIndex = dir === "down" ? panelIndex + 1 : panelIndex - 1;
+      const wouldExit = dir === "down" ? nextIndex >= total : nextIndex < 0;
+      if (queue.length >= 1 && !wouldExit) return;
+      if (queue.length >= 1 && wouldExit && queue[queue.length - 1] === dir) return;
+      queue.push(dir);
+      if (!panelAnimating) processQueue();
+    }
+
+    function processQueue() {
+      if (queue.length === 0) return;
+      const dir = queue.shift()!;
+      const isDown = dir === "down";
+      const targetIndex = isDown ? panelIndex + 1 : panelIndex - 1;
+      gotoPanel(targetIndex, isDown);
+    }
+
+    function resetPanels() {
+      gsap.set(swipePanels, {
+        xPercent: OFFSCREEN_X,
+        zIndex: (i: number) => total - i,
+      });
+      panelIndex = -1;
+      queue.length = 0;
+    }
+
+    function fillAllPanels() {
+      gsap.set(swipePanels, {
+        xPercent: 0,
+        zIndex: (i: number) => total - i,
+      });
+      panelIndex = total - 1;
+      queue.length = 0;
+    }
+
+    resetPanels();
+
+    function gotoPanel(index: number, isScrollingDown: boolean) {
+      if (isScrollingDown && index >= total) {
+        panelAnimating = false;
+        queue.length = 0;
+        intentObserver.disable();
+        window.__projectsSectionActive = false;
+        window.dispatchEvent(new Event("scrollToNextSection"));
+        return;
+      }
+
+      if (!isScrollingDown && index < 0) {
+        panelAnimating = false;
+        queue.length = 0;
+        intentObserver.disable();
+        window.__projectsSectionActive = false;
+        window.dispatchEvent(new Event("scrollToPrevSection"));
+        return;
+      }
+
+      panelAnimating = true;
+
+      if (isScrollingDown) {
+        gsap.fromTo(
+          swipePanels[index],
+          { xPercent: OFFSCREEN_X },
+          {
+            xPercent: 0,
+            duration: 0.7,
+            ease: "power2.out",
+            onComplete: () => {
+              panelIndex = index;
+              panelAnimating = false;
+              processQueue();
+            },
+          }
+        );
+      } else {
+        gsap.to(swipePanels[panelIndex], {
+          xPercent: OFFSCREEN_X,
+          duration: 0.7,
+          ease: "power2.in",
+          onComplete: () => {
+            panelIndex = index;
+            panelAnimating = false;
+            processQueue();
+          },
+        });
+      }
+    }
+
+    // Observer solo para wheel en desktop dentro de swipeSection
+    // Touch se maneja de forma nativa abajo
+    const intentObserver = ScrollTrigger.observe({
+      target: swipeSection,
+      type: "wheel",
+      wheelSpeed: -1,
+      tolerance: 8,
+      preventDefault: true,
+      onUp:   () => enqueue("down"),
+      onDown: () => enqueue("up"),
+    });
+
+    intentObserver.disable();
+
+    // Touch nativo para los paneles — detecta swipe horizontal Y vertical
+    // para distinguir si el usuario quiere cambiar panel o salir de la sección
+    let panelTouchStartX = 0;
+    let panelTouchStartY = 0;
+    let touchIntent: "horizontal" | "vertical" | null = null;
+    // Umbral en px para bloquear scroll del body mientras swipeSection está activo
+    const INTENT_THRESHOLD = 10;
+
+    swipeSection.addEventListener("touchstart", (e) => {
+      if (!window.__projectsSectionActive) return;
+      panelTouchStartX = e.touches[0].clientX;
+      panelTouchStartY = e.touches[0].clientY;
+      touchIntent = null;
+    }, { passive: true });
+
+    swipeSection.addEventListener("touchmove", (e) => {
+      if (!window.__projectsSectionActive) return;
+
+      const deltaX = panelTouchStartX - e.touches[0].clientX;
+      const deltaY = panelTouchStartY - e.touches[0].clientY;
+
+      // Determina la intención solo una vez por gesto
+      if (touchIntent === null && (Math.abs(deltaX) > INTENT_THRESHOLD || Math.abs(deltaY) > INTENT_THRESHOLD)) {
+        touchIntent = Math.abs(deltaX) >= Math.abs(deltaY) ? "horizontal" : "vertical";
+      }
+
+      // Si la intención es horizontal (cambiar panel), bloquea el scroll vertical del body
+      if (touchIntent === "horizontal") {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    swipeSection.addEventListener("touchend", (e) => {
+      if (!window.__projectsSectionActive) return;
+
+      const deltaX = panelTouchStartX - e.changedTouches[0].clientX;
+      const deltaY = panelTouchStartY - e.changedTouches[0].clientY;
+
+      if (touchIntent === "horizontal") {
+        // Swipe horizontal → navegar entre paneles
+        if (Math.abs(deltaX) < 30) return; // umbral mínimo
+        if (deltaX > 0) {
+          enqueue("down"); // swipe izquierda → siguiente panel
+        } else {
+          enqueue("up");   // swipe derecha → panel anterior
+        }
+      } else if (touchIntent === "vertical") {
+        // Swipe vertical dentro de swipeSection → salir de la sección
+        if (Math.abs(deltaY) < 30) return;
+        if (deltaY > 0) {
+          // Swipe hacia arriba → salir hacia siguiente sección
+          enqueue("down"); // fuerza avanzar hasta el final y salir
+          // Si ya está en el último panel, sale directo
+          if (panelIndex === total - 1) {
+            queue.length = 0;
+            intentObserver.disable();
+            window.__projectsSectionActive = false;
+            window.dispatchEvent(new Event("scrollToNextSection"));
+          }
+        } else {
+          // Swipe hacia abajo → salir hacia sección anterior
+          if (panelIndex <= 0) {
+            queue.length = 0;
+            intentObserver.disable();
+            window.__projectsSectionActive = false;
+            window.dispatchEvent(new Event("scrollToPrevSection"));
+          }
+        }
+      }
+
+      touchIntent = null;
+    }, { passive: true });
+
+    ScrollTrigger.create({
+      trigger: ".swipe-section",
+      start: "top top",
+      end: "+=1",
+      pin: true,
+      anticipatePin: 1,
+
+      onEnter: () => {
+        resetPanels();
+        window.__projectsSectionActive = true;
+        intentObserver.enable();
+        gotoPanel(0, true);
+      },
+
+      onEnterBack: () => {
+        fillAllPanels();
+        window.__projectsSectionActive = true;
+        intentObserver.enable();
+      },
+
+      onLeave: () => {
+        window.__projectsSectionActive = false;
+        intentObserver.disable();
+      },
+
+      onLeaveBack: () => {
+        window.__projectsSectionActive = false;
+        intentObserver.disable();
+        resetPanels();
+      },
+    });
+  }
 </script>
 
 </html>

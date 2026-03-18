@@ -1445,6 +1445,7 @@ button {
 
 
 .swipe-section {
+  border: 1px solid red;
   display: flex;
   position: relative;
   justify-content: space-evenly;
@@ -1457,6 +1458,7 @@ button {
 }
 
  .panel {
+
   height: 70vh;
   width: 100vw;
   display: flex;
