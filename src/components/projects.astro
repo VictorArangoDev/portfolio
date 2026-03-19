@@ -1,12 +1,676 @@
 ---
 import Title from "./title.astro";
+
+const projects = [
+  {
+    id: "01",
+    title: "Luminary",
+    category: "Brand Identity · Web",
+    year: "2024",
+    description: "A full-spectrum identity system for a luxury lighting studio. From logotype to digital presence.",
+    tags: ["Branding", "Art Direction", "Webflow"],
+    accent: "#C8A96E",
+  },
+  {
+    id: "02",
+    title: "Orbital",
+    category: "Product · Motion",
+    year: "2024",
+    description: "Dashboard interface for a SaaS analytics platform. Data meets craft.",
+    tags: ["UI/UX", "Design System", "React"],
+    accent: "#7B9EA6",
+  },
+  {
+    id: "03",
+    title: "Sólido",
+    category: "Editorial · Print",
+    year: "2023",
+    description: "Independent architecture magazine. Grid-breaking layouts and raw typographic expression.",
+    tags: ["Editorial", "Typography", "Print"],
+    accent: "#C47B5A",
+  },
+  {
+    id: "04",
+    title: "Kōdo",
+    category: "Web App · Dev",
+    year: "2023",
+    description: "Developer tooling for real-time collaboration. Performance-first, no compromises.",
+    tags: ["TypeScript", "Astro", "Puppeteer"],
+    accent: "#8B7EC8",
+  },
+  {
+    id: "05",
+    title: "Mirlo",
+    category: "Mobile · UX",
+    year: "2023",
+    description: "A mindfulness app that respects your attention. Intentional design at every layer.",
+    tags: ["Mobile", "UX Research", "Figma"],
+    accent: "#7DAF8C",
+  },
+  {
+    id: "06",
+    title: "Vanta",
+    category: "3D · Interactive",
+    year: "2022",
+    description: "Generative 3D experience for a fashion house. Where code meets couture.",
+    tags: ["Three.js", "GLSL", "WebGL"],
+    accent: "#A67B9E",
+  },
+];
 ---
-<section class="swipe-section section section-animation" id="projects" data-speed="1">
-  <Title title="Projects" />
-  <section class="panel light x-100"><h2 class="panel__number">2</h2></section>
-  <section class="panel x-100"><h2 class="panel__number">3</h2></section>
-  <section class="panel light x-100"><h2 class="panel__number">4</h2></section>
-  <section class="panel light x-100"><h2 class="panel__number">5</h2></section>
-  <section class="panel light x-100"><h2 class="panel__number">6</h2></section>
-  <section class="panel light x-100"><h2 class="panel__number">7</h2></section>
+
+<section
+  class="swipe-section section"
+  id="projects"
+  data-speed="1"
+  aria-label="Projects section"
+  role="region"
+>
+  <!-- Background grid texture -->
+  <div class="projects-grid-bg" aria-hidden="true"></div>
+
+  <!-- Section label -->
+  <div class="projects-meta" aria-hidden="true">
+    <span class="projects-meta__label">Selected Work</span>
+    <span class="projects-meta__count js-panel-count">— 01 / {projects.length.toString().padStart(2, "0")}</span>
+  </div>
+
+  <!-- Navigation dots -->
+  <nav class="projects-nav" aria-label="Project navigation">
+    {projects.map((_, i) => (
+      <button
+        class="projects-nav__dot"
+        data-panel-nav={i}
+        aria-label={`Go to project ${i + 1}`}
+        aria-current={i === 0 ? "true" : "false"}
+      />
+    ))}
+  </nav>
+
+  <!-- Progress bar -->
+  <div class="projects-progress" aria-hidden="true">
+    <div class="projects-progress__track">
+      <div class="projects-progress__fill js-progress-fill" style="transform: scaleX(0)"></div>
+    </div>
+  </div>
+
+  <!-- Panels -->
+  {projects.map((project, i) => (
+    <article
+      class="panel"
+      data-panel-index={i}
+      aria-hidden={i !== 0 ? "true" : "false"}
+      aria-label={`Project ${project.id}: ${project.title}`}
+      style={`--accent: ${project.accent};`}
+    >
+      <!-- Left column: project info -->
+      <div class="panel__info">
+        <div class="panel__id" aria-hidden="true">{project.id}</div>
+        <div class="panel__category">{project.category}</div>
+        <h2 class="panel__title">{project.title}</h2>
+        <p class="panel__desc">{project.description}</p>
+        <ul class="panel__tags" aria-label="Technologies">
+          {project.tags.map(tag => (
+            <li class="panel__tag">{tag}</li>
+          ))}
+        </ul>
+        <div class="panel__actions">
+          <button class="panel__cta" aria-label={`View ${project.title} project`}>
+            <span>View Project</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <span class="panel__year">{project.year}</span>
+        </div>
+      </div>
+
+      <!-- Right column: visual placeholder -->
+      <div class="panel__visual" aria-hidden="true">
+        <div class="panel__visual-inner">
+          <div class="panel__visual-noise"></div>
+          <div class="panel__visual-accent"></div>
+          <span class="panel__visual-num">{project.id}</span>
+        </div>
+      </div>
+
+      <!-- Swipe hint (only on first panel, mobile) -->
+      {i === 0 && (
+        <div class="panel__swipe-hint js-swipe-hint" aria-hidden="true">
+          <span>swipe</span>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      )}
+    </article>
+  ))}
+
+  <!-- Keyboard hint -->
+  <div class="projects-hint" aria-hidden="true">
+    <kbd>←</kbd><kbd>→</kbd>
+    <span>navigate</span>
+  </div>
 </section>
+
+<style>
+  /* ─── Layout ──────────────────────────────────────────────────────────── */
+  .swipe-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #0a0a0a;
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* ─── Grid background ─────────────────────────────────────────────────── */
+  .projects-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── Meta bar ────────────────────────────────────────────────────────── */
+  .projects-meta {
+    position: absolute;
+    top: 2rem;
+    left: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 10;
+  }
+  .projects-meta__label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+  }
+  .projects-meta__count {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.5);
+    transition: color 0.3s;
+  }
+
+  /* ─── Nav dots ────────────────────────────────────────────────────────── */
+  .projects-nav {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+  }
+  .projects-nav__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    padding: 0;
+  }
+  .projects-nav__dot[aria-current="true"] {
+    background: #fff;
+    transform: scale(1.4);
+  }
+  .projects-nav__dot:hover {
+    background: rgba(255,255,255,0.5);
+  }
+
+  /* ─── Progress bar ────────────────────────────────────────────────────── */
+  .projects-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: 10;
+  }
+  .projects-progress__track {
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+  .projects-progress__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent, #fff), rgba(255,255,255,0.6));
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.5s cubic-bezier(0.4,0,0.2,1), background 0.5s;
+  }
+
+  /* ─── Keyboard hint ───────────────────────────────────────────────────── */
+  .projects-hint {
+    position: absolute;
+    top: 2rem;
+    right: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    z-index: 10;
+    opacity: 0.3;
+  }
+  .projects-hint span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #fff;
+    margin-left: 0.25rem;
+  }
+  kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 3px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    color: #fff;
+    line-height: 1;
+  }
+
+  /* ─── Panels ──────────────────────────────────────────────────────────── */
+  .panel {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 5rem 2.5rem 4rem;
+    transform: translateX(100%);
+    will-change: transform;
+    z-index: 1;
+    gap: 2rem;
+  }
+
+  /* ─── Panel info (left) ───────────────────────────────────────────────── */
+  .panel__info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    position: relative;
+    z-index: 2;
+  }
+  .panel__id {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--accent, rgba(255,255,255,0.4));
+    text-transform: uppercase;
+  }
+  .panel__category {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+  }
+  .panel__title {
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 300;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    color: #fff;
+    margin: 0;
+    font-family: 'Terra', 'Georgia', serif; /* matches your existing font */
+  }
+  .panel__desc {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.5);
+    max-width: 38ch;
+    margin: 0;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .panel__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .panel__tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent, rgba(255,255,255,0.5));
+    border: 1px solid color-mix(in srgb, var(--accent, #fff) 30%, transparent);
+    padding: 0.3rem 0.65rem;
+    border-radius: 100px;
+  }
+  .panel__actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+  }
+  .panel__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--accent, #fff);
+    color: #0a0a0a;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 100px;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .panel__cta:hover {
+    opacity: 0.85;
+    transform: translateX(2px);
+  }
+  .panel__year {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.1em;
+  }
+
+  /* ─── Panel visual (right) ────────────────────────────────────────────── */
+  .panel__visual {
+    position: relative;
+    height: 65vh;
+    max-height: 600px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .panel__visual-inner {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--accent, #333) 12%, #111);
+    border: 1px solid color-mix(in srgb, var(--accent, #fff) 15%, transparent);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .panel__visual-noise {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+  }
+  .panel__visual-accent {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent, #fff) 40%, transparent), transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: blur(40px);
+  }
+  .panel__visual-num {
+    position: relative;
+    font-size: clamp(6rem, 14vw, 12rem);
+    font-weight: 900;
+    font-family: 'DM Mono', monospace;
+    color: color-mix(in srgb, var(--accent, #fff) 8%, transparent);
+    line-height: 1;
+    letter-spacing: -0.05em;
+    user-select: none;
+  }
+
+  /* ─── Swipe hint ──────────────────────────────────────────────────────── */
+  .panel__swipe-hint {
+    position: absolute;
+    bottom: 3rem;
+    right: 2.5rem;
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* ─── Mobile ──────────────────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .panel {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      padding: 5rem 1.5rem 5rem;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    .panel__visual {
+      height: 35vh;
+      order: -1;
+    }
+    .panel__title {
+      font-size: clamp(2.2rem, 10vw, 3.5rem);
+    }
+    .panel__desc {
+      font-size: 0.82rem;
+    }
+    .panel__swipe-hint {
+      display: flex;
+    }
+    .projects-hint {
+      display: none;
+    }
+    .projects-meta {
+      left: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+  import ScrollTrigger from "gsap/dist/ScrollTrigger";
+  import ScrollSmoother from "gsap/dist/ScrollSmoother";
+ 
+  (() => {
+    const section = document.querySelector<HTMLElement>(".swipe-section");
+    if (!section) return;
+
+    const panels = Array.from(section.querySelectorAll<HTMLElement>(".panel"));
+    const dots = Array.from(section.querySelectorAll<HTMLButtonElement>("[data-panel-nav]"));
+    const progressFill = section.querySelector<HTMLElement>(".js-progress-fill");
+    const countEl = section.querySelector<HTMLElement>(".js-panel-count");
+    const swipeHint = section.querySelector<HTMLElement>(".js-swipe-hint");
+
+    const TOTAL = panels.length;
+    const DURATION = 0.65;
+    const EASE_IN = "power3.in";
+    const EASE_OUT = "power3.out";
+
+    let current = -1; // -1 = no panel active (section not entered yet)
+    let animating = false;
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+    function updateUI(index: number) {
+      // Dots
+      dots.forEach((d, i) => {
+        const active = i === index;
+        d.setAttribute("aria-current", active ? "true" : "false");
+      });
+
+      // Counter
+      if (countEl) {
+        countEl.textContent = `— ${String(index + 1).padStart(2, "0")} / ${String(TOTAL).padStart(2, "0")}`;
+      }
+
+      // Progress bar
+      if (progressFill) {
+        const progress = (index + 1) / TOTAL;
+        const accent = panels[index]?.style.getPropertyValue("--accent") || "#fff";
+        gsap.to(progressFill, {
+          scaleX: progress,
+          duration: 0.5,
+          ease: "power2.out",
+          onStart: () => {
+            progressFill.style.background = `linear-gradient(90deg, ${accent}, rgba(255,255,255,0.5))`;
+          }
+        });
+      }
+
+      // Aria hidden on panels
+      panels.forEach((p, i) => {
+        p.setAttribute("aria-hidden", i === index ? "false" : "true");
+      });
+
+      // Swipe hint: hide after first interaction
+      if (swipeHint && index > 0) {
+        gsap.to(swipeHint, { opacity: 0, duration: 0.3, onComplete: () => swipeHint.remove() });
+      }
+    }
+
+    // ── Panel transition ───────────────────────────────────────────────────
+    type Dir = "forward" | "backward";
+
+    function goTo(index: number, dir: Dir, onComplete?: () => void) {
+      if (animating) return;
+      if (index < 0 || index >= TOTAL) {
+        onComplete?.();
+        return;
+      }
+
+      animating = true;
+      const prev = current;
+      current = index;
+      updateUI(index);
+
+      const incoming = panels[index];
+      const outgoing = prev >= 0 ? panels[prev] : null;
+
+      const fromX = dir === "forward" ? "100%" : "-100%";
+      const toX   = dir === "forward" ? "-100%" : "100%";
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          animating = false;
+          onComplete?.();
+        }
+      });
+
+      // Slide out previous panel
+      if (outgoing) {
+        tl.to(outgoing, {
+          xPercent: dir === "forward" ? -15 : 15,
+          opacity: 0.3,
+          duration: DURATION,
+          ease: EASE_IN,
+        }, 0);
+      }
+
+      // Slide in new panel
+      tl.fromTo(incoming,
+        { xPercent: dir === "forward" ? 100 : -100, opacity: 1 },
+        { xPercent: 0, opacity: 1, duration: DURATION, ease: EASE_OUT },
+        0
+      );
+    }
+
+    // ── Public API ─────────────────────────────────────────────────────────
+    function enter(fromDirection: Dir) {
+      if (fromDirection === "forward") {
+        // Entering from top → start at first panel
+        gsap.set(panels, { xPercent: 100, opacity: 1 });
+        goTo(0, "forward");
+      } else {
+        // Entering from bottom → start at last panel
+        gsap.set(panels, { xPercent: (i) => i === TOTAL - 1 ? 0 : 100, opacity: 1 });
+        current = TOTAL - 1;
+        updateUI(TOTAL - 1);
+      }
+    }
+
+    function leave() {
+      // Reset for next time section is entered
+      animating = false;
+    }
+
+    // ── Scroll / wheel ─────────────────────────────────────────────────────
+    // The parent layout listens to the section entering/leaving the viewport,
+    // and fires custom events to this controller.
+
+    function handleNext() {
+      if (current < TOTAL - 1) {
+        goTo(current + 1, "forward");
+      } else {
+        // Exit forward
+        section!.dispatchEvent(new CustomEvent("projects:exit", { detail: { direction: "forward" }, bubbles: true }));
+      }
+    }
+
+    function handlePrev() {
+      if (current > 0) {
+        goTo(current - 1, "backward");
+      } else {
+        // Exit backward
+        section!.dispatchEvent(new CustomEvent("projects:exit", { detail: { direction: "backward" }, bubbles: true }));
+      }
+    }
+
+    // ── Dot navigation ─────────────────────────────────────────────────────
+    dots.forEach((dot, i) => {
+      dot.addEventListener("click", () => {
+        if (i === current) return;
+        goTo(i, i > current ? "forward" : "backward");
+      });
+    });
+
+    // ── Keyboard ───────────────────────────────────────────────────────────
+    // Layout owns PageUp/Down/Space. Projects owns ArrowLeft/Right only.
+    document.addEventListener("keydown", (e) => {
+      if (!window.__projectsSectionActive) return;
+      if (e.code === "ArrowRight") { e.preventDefault(); handleNext(); }
+      else if (e.code === "ArrowLeft") { e.preventDefault(); handlePrev(); }
+    });
+
+    // ── Touch ──────────────────────────────────────────────────────────────
+    // Touch events are fully owned by the layout's shared session object.
+    // Projects receives delegated events via projects:wheel-next / projects:wheel-prev.
+    // No touchstart / touchend listeners here — prevents double-fire.
+
+    // ── Listen for layout events ────────────────────────────────────────────
+    // Layout fires these when the section enters/leaves viewport.
+    section.addEventListener("projects:enter", ((e: CustomEvent) => {
+      enter(e.detail.direction as Dir);
+    }) as EventListener);
+
+    section.addEventListener("projects:leave", (() => {
+      leave();
+    }) as EventListener);
+
+    // Wheel events delegated from layout observer
+    section.addEventListener("projects:wheel-next", () => { if (!animating) handleNext(); });
+    section.addEventListener("projects:wheel-prev", () => { if (!animating) handlePrev(); });
+
+    // Expose minimal API for layout
+    (section as any)._projects = { enter, leave, isFirst: () => current <= 0, isLast: () => current >= TOTAL - 1 };
+
+    // Initial state
+    gsap.set(panels, { xPercent: 100 });
+  })();
+</script>
