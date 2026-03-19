@@ -451,6 +451,14 @@ const projects = [
 
       // Animate in
       incoming.style.transition = "";
+      // Asegura que no queden "stale" exit-classes del modo anterior,
+      // porque en la CSS las clases is-exit-left/right sobreescriben is-active.
+      incoming.classList.remove("is-exit-up", "is-exit-down", "is-exit-left", "is-exit-right");
+      // IMPORTANTE:
+      // Quitamos los estilos inline de estado inicial para que el CSS de
+      // `.panel.is-active` (opacity/transform) tenga prioridad.
+      incoming.style.opacity = "";
+      incoming.style.transform = "";
       incoming.classList.add("is-active");
 
       current = next;
@@ -478,7 +486,7 @@ const projects = [
     function reset(fromEnd = false) {
       // Called when layout snaps INTO this section
       panels.forEach(p => {
-        p.classList.remove("is-active", "is-exit-up", "is-exit-down");
+        p.classList.remove("is-active", "is-exit-up", "is-exit-down", "is-exit-left", "is-exit-right");
         p.style.opacity   = "";
         p.style.transform = "";
         p.style.transition = "";
