@@ -198,6 +198,70 @@ const { title } = Astro.props;
 		<Header/>
 		<main class="main " id="smooth-wrapper" >
 			<div id="smooth-content">
+			<script>
+				// En móvil necesitamos que el scrollerProxy de ScrollTrigger exista
+				// ANTES de que otros componentes creen sus triggers/animaciones.
+				import { gsap } from "gsap";
+				import ScrollTrigger from "gsap/dist/ScrollTrigger";
+
+				gsap.registerPlugin(ScrollTrigger);
+
+				const IS_TOUCH =
+					window.matchMedia("(pointer: coarse)").matches &&
+					window.matchMedia("(hover: none)").matches;
+				if (IS_TOUCH) {
+					const html = document.documentElement;
+					const wrapper = document.getElementById("smooth-wrapper");
+					const content = document.getElementById("smooth-content");
+					if (content) {
+						const w = window as any;
+						w.__portfolioScrollState = w.__portfolioScrollState || {
+							virtualY: 0,
+							scrollerProxyReady: false,
+						};
+						const state = w.__portfolioScrollState;
+
+						state.notify = () => ScrollTrigger.update();
+
+						// Lock del scroll nativo (GSAP se encarga con transform/translate).
+						html.style.overflow = "hidden";
+						html.style.height = "100%";
+						document.body.style.overflow = "hidden";
+						document.body.style.height = "100%";
+
+						if (wrapper) wrapper.style.cssText = "position:fixed;inset:0;overflow:hidden;";
+						content.style.cssText = "position:relative;will-change:transform;";
+
+						if (!state.scrollerProxyReady) {
+							ScrollTrigger.scrollerProxy(content, {
+								scrollTop(value) {
+									if (value !== undefined) {
+										state.virtualY = value;
+										gsap.set(content, { y: -value });
+										state.notify?.();
+									}
+									return state.virtualY;
+								},
+								getBoundingClientRect() {
+									return {
+										top: 0,
+										left: 0,
+										width: window.innerWidth,
+										height: window.innerHeight,
+									};
+								},
+								pinType: "transform",
+							});
+
+							ScrollTrigger.defaults({ scroller: content });
+							state.scrollerProxyReady = true;
+						}
+
+						gsap.set(content, { y: -state.virtualY });
+						state.notify?.();
+					}
+				}
+			</script>
 				<slot />
 			</div>
 		</main>
@@ -321,262 +385,367 @@ const { title } = Astro.props;
 		start();
 	</script>
 <script>
-  import { gsap } from "gsap";
-  import ScrollTrigger from "gsap/dist/ScrollTrigger";
+    import { gsap }       from "gsap";
+  import ScrollTrigger  from "gsap/dist/ScrollTrigger";
   import ScrollSmoother from "gsap/dist/ScrollSmoother";
+  import ScrollToPlugin from "gsap/dist/ScrollToPlugin";
  
   declare global {
-    interface Window {
-      __projectsSectionActive?: boolean;
-    }
+    interface Window { __projectsSectionActive?: boolean; }
   }
  
-  gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+  gsap.registerPlugin(ScrollTrigger, ScrollSmoother, ScrollToPlugin);
  
-  // ─── Device detection ────────────────────────────────────────────────────
-  // Detect touch-primary devices. We cannot rely on window.innerWidth alone
-  // because iPads in landscape can be wide but still touch-primary.
-  const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  const IS_TOUCH =
+    window.matchMedia("(pointer: coarse)").matches &&
+    window.matchMedia("(hover: none)").matches;
  
-  // ─── ScrollSmoother ──────────────────────────────────────────────────────
-  // FIX: smoothTouch causes GSAP to intercept native touch events on mobile,
-  // which races with our manual touch listeners and causes double-scroll.
-  // Disable smoothTouch entirely on touch-primary devices.
-  const scroller = ScrollSmoother.create({
-    wrapper: "#smooth-wrapper",
-    content: "#smooth-content",
-    smooth: isTouchDevice ? 0 : 1,   // no momentum smoothing on touch
-    effects: true,
-    smoothTouch: false,               // always off — prevents touch event hijack
-    ignoreMobileResize: true,         // prevents iOS address bar resize from triggering ScrollTrigger refresh
-  });
+  const sections    = gsap.utils.toArray<HTMLElement>(".section");
+  const N           = sections.length;
+  if (N === 0) throw new Error("No .section elements found");
  
-  // ─── Section snapping ────────────────────────────────────────────────────
-  const sections = gsap.utils.toArray<HTMLElement>(".section");
-  const numSections = sections.length;
-  if (numSections === 0) throw new Error("No .section elements found");
+  const projectsEl  = document.querySelector<HTMLElement>(".swipe-section");
+  const projectsIdx = projectsEl ? sections.indexOf(projectsEl) : -1;
  
-  let currentSectionIndex = 0;
-  let sectionAnimating = false;
-  const SNAP_DURATION = 0.75;
+  // Carousel API — populated once Projects.astro runs its script
+  const carousel = () => (projectsEl as any)?._carousel as
+    { next: () => boolean; prev: () => boolean; reset: (fromEnd?: boolean) => void } | undefined;
  
-  function lockToNearestSection() {
-    ScrollTrigger.refresh();
-    const t = ScrollTrigger.create({
-      trigger: document.body,
-      start: "top top",
-      end: "bottom bottom",
+  let sectionIdx = 0;
+  let snapping   = false;
+  const DUR      = 0.55;
+  const EASE     = "power3.inOut";
+ 
+  // ─────────────────────────────────────────────────────────────────────────
+  //  DESKTOP
+  // ─────────────────────────────────────────────────────────────────────────
+  if (!IS_TOUCH) {
+ 
+    const scroller = ScrollSmoother.create({
+      wrapper: "#smooth-wrapper",
+      content: "#smooth-content",
+      smooth: 1,
+      effects: true,
+      smoothTouch: false,
     });
-    const idx = Math.min(
-      Math.max(0, Math.round(t.progress * (numSections - 1))),
-      numSections - 1
-    );
-    currentSectionIndex = idx;
-    scroller.scrollTo(sections[currentSectionIndex], false);
-    t.kill();
-  }
  
-  function goToSection(index: number) {
-    if (index < 0 || index >= numSections || sectionAnimating) return;
-    sectionAnimating = true;
-    currentSectionIndex = index;
-    scroller.scrollTo(sections[index], true);
-    gsap.delayedCall(SNAP_DURATION, () => { sectionAnimating = false; });
-  }
+    function goTo(i: number) {
+      if (i < 0 || i >= N || snapping) return;
+      snapping = true;
+      sectionIdx = i;
  
-  // ─── Projects section integration ────────────────────────────────────────
-  const projectsSection = document.querySelector<HTMLElement>(".swipe-section");
+      // Tell carousel which direction we're entering from
+      if (i === projectsIdx) {
+        // arriving from above → start at first panel; below → last panel
+        const fromEnd = sectionIdx > i; // will always be false here, kept for clarity
+        carousel()?.reset(false);
+        window.__projectsSectionActive = true;
+      } else {
+        window.__projectsSectionActive = false;
+      }
  
-  function fireProjectsEvent(name: string, detail?: object) {
-    projectsSection?.dispatchEvent(new CustomEvent(name, { detail, bubbles: false }));
-  }
- 
-  // When projects fires an exit, advance to next/prev section
-  projectsSection?.addEventListener("projects:exit", ((e: CustomEvent) => {
-    const dir = e.detail.direction as "forward" | "backward";
-    window.__projectsSectionActive = false;
-    if (dir === "forward") {
-      goToSection(currentSectionIndex + 1);
-    } else {
-      goToSection(currentSectionIndex - 1);
+      scroller.scrollTo(sections[i], true);
+      gsap.delayedCall(DUR + 0.15, () => { snapping = false; });
     }
-  }) as EventListener);
  
-  // ─── ScrollTrigger pin for projects section ───────────────────────────────
-  // FIX: On mobile, ScrollTrigger.onEnter fires based on scroll position, but
-  // with smoothTouch disabled the scroll position updates synchronously.
-  // We still use it for desktop pinning; on mobile we activate via touch detection.
-  if (projectsSection) {
-    ScrollTrigger.create({
-      trigger: projectsSection,
-      start: "top top",
-      end: "+=1",
-      pin: true,
-      anticipatePin: 1,
-      onEnter: () => {
-        window.__projectsSectionActive = true;
-        fireProjectsEvent("projects:enter", { direction: "forward" });
-      },
-      onEnterBack: () => {
-        window.__projectsSectionActive = true;
-        fireProjectsEvent("projects:enter", { direction: "backward" });
-      },
-      onLeave: () => {
-        window.__projectsSectionActive = false;
-        fireProjectsEvent("projects:leave");
-      },
-      onLeaveBack: () => {
-        window.__projectsSectionActive = false;
-        fireProjectsEvent("projects:leave");
-      },
-    });
-  }
+    // Projects pin — keeps it in viewport while carousel animates
+    if (projectsEl) {
+      ScrollTrigger.create({
+        trigger: projectsEl,
+        start: "top top",
+        end: "+=1",
+        pin: true,
+        anticipatePin: 1,
+        onEnter:     () => { window.__projectsSectionActive = true;  carousel()?.reset(false); },
+        onEnterBack: () => { window.__projectsSectionActive = true;  carousel()?.reset(true);  },
+        onLeave:     () => { window.__projectsSectionActive = false; },
+        onLeaveBack: () => { window.__projectsSectionActive = false; },
+      });
+    }
  
-  // ─── Wheel — desktop only ─────────────────────────────────────────────────
-  if (!isTouchDevice) {
+    // Wheel
     ScrollTrigger.observe({
       target: document.body,
       type: "wheel",
       preventDefault: true,
       tolerance: 15,
-      onUp: () => {
-        if (sectionAnimating) return;
+      onDown: () => {
+        if (snapping) return;
         if (window.__projectsSectionActive) {
-          fireProjectsEvent("projects:wheel-prev");
+          // Try to advance carousel; if at boundary, move to next section
+          const consumed = carousel()?.next() ?? false;
+          if (!consumed) goTo(sectionIdx + 1);
         } else {
-          if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
+          goTo(sectionIdx + 1);
         }
       },
-      onDown: () => {
-        if (sectionAnimating) return;
+      onUp: () => {
+        if (snapping) return;
         if (window.__projectsSectionActive) {
-          fireProjectsEvent("projects:wheel-next");
+          const consumed = carousel()?.prev() ?? false;
+          if (!consumed) goTo(sectionIdx - 1);
         } else {
-          if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
+          goTo(sectionIdx - 1);
         }
       },
     });
-  }
  
-  // ─── Touch — mobile section navigation ───────────────────────────────────
-  // FIX: A single shared touch session object prevents the body listener and
-  // the section listener from both acting on the same gesture.
-  // Only one of them "claims" the gesture per touchstart.
-  if (isTouchDevice) {
-    interface TouchSession {
-      startX: number;
-      startY: number;
-      claimedBy: "body" | "projects" | null;
-      intentLocked: boolean;
-      intent: "horizontal" | "vertical" | null;
+    // Keyboard
+    document.addEventListener("keydown", (e) => {
+      if (!["Space","PageDown","PageUp","ArrowDown","ArrowUp"].includes(e.code)) return;
+      // ArrowLeft/Right handled inside Projects.astro for carousel
+      if (window.__projectsSectionActive && ["ArrowDown","ArrowUp"].includes(e.code)) return;
+      e.preventDefault();
+      if (snapping) return;
+      const down = ["Space","PageDown","ArrowDown"].includes(e.code);
+      down ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
+    }, { passive: false });
+ 
+    // carousel:boundary — fired by keyboard handler inside Projects.astro
+    projectsEl?.addEventListener("carousel:boundary", ((e: CustomEvent) => {
+      e.detail.dir === "next" ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
+    }) as EventListener);
+ 
+    // Init
+    ScrollTrigger.refresh();
+    scroller.scrollTo(sections[0], false);
+    window.addEventListener("scrollToNextSection", () => goTo(sectionIdx + 1));
+    window.addEventListener("scrollToPrevSection", () => goTo(sectionIdx - 1));
+ 
+  // ─────────────────────────────────────────────────────────────────────────
+  //  MOBILE  —  no ScrollSmoother, no native scroll, GSAP owns all movement
+  // ─────────────────────────────────────────────────────────────────────────
+  } else {
+ 
+    // ── Kill native scroll completely ─────────────────────────────────────
+    // Native scroll and GSAP scrollTo compete on iOS/Android producing jitter.
+    // Solution: lock the viewport, translate the content manually with GSAP.
+    // This is the same model ScrollSmoother uses on desktop — we just do it
+    // ourselves without the smoothing overhead.
+    const html    = document.documentElement;
+    const wrapper = document.getElementById("smooth-wrapper");
+    const content = document.getElementById("smooth-content");
+ 
+    html.style.overflow    = "hidden";
+    html.style.height      = "100%";
+    document.body.style.overflow = "hidden";
+    document.body.style.height   = "100%";
+ 
+    if (wrapper) {
+      wrapper.style.cssText = "position:fixed;inset:0;overflow:hidden;";
+    }
+    if (content) {
+      content.style.cssText = "position:relative;will-change:transform;";
     }
  
-    const session: TouchSession = {
-      startX: 0,
-      startY: 0,
-      claimedBy: null,
-      intentLocked: false,
-      intent: null,
+    // Force every section to exactly 100dvh
+    const VH = window.innerHeight;
+    sections.forEach(s => {
+      s.style.height    = `${VH}px`;
+      s.style.minHeight = `${VH}px`;
+      s.style.overflow  = "hidden";
+    });
+ 
+		// ── Virtual scroll position (shared state) ─────────────────────────────
+		// El scrollerProxy y el default scroller ya se configuraron en un script
+		// anterior (antes de que otros componentes creen sus ScrollTriggers).
+		const w = window as any;
+		if (!w.__portfolioScrollState) {
+			w.__portfolioScrollState = {
+				virtualY: 0,
+				scrollerProxyReady: false,
+			};
+		}
+		const scrollState = w.__portfolioScrollState as {
+			virtualY: number;
+			scrollerProxyReady: boolean;
+			notify?: () => void;
+		};
+
+		// Si el script temprano no corrió a tiempo, inicializamos el proxy aquí
+		// para no romper el "snap" ni el resto de animaciones.
+		if (!scrollState.notify) {
+			scrollState.notify = () => ScrollTrigger.update();
+		}
+
+		if (!scrollState.scrollerProxyReady) {
+			ScrollTrigger.scrollerProxy(content as HTMLElement, {
+				scrollTop(value?: number) {
+					if (value !== undefined) {
+						scrollState.virtualY = value;
+						gsap.set(content as HTMLElement, { y: -value });
+						scrollState.notify?.();
+					}
+					return scrollState.virtualY;
+				},
+				getBoundingClientRect() {
+					return {
+						top: 0,
+						left: 0,
+						width: window.innerWidth,
+						height: window.innerHeight,
+					};
+				},
+				pinType: "transform",
+			});
+
+			ScrollTrigger.defaults({ scroller: content as HTMLElement });
+			scrollState.scrollerProxyReady = true;
+		}
+
+		function sectionY(i: number) { return i * VH; }
+
+		function updateY(y: number) {
+			scrollState.virtualY = y;
+			if (content) gsap.set(content, { y: -y });
+			scrollState.notify?.();
+		}
+ 
+    function snapTo(i: number, animate: boolean) {
+      const target = sectionY(i);
+      gsap.killTweensOf(content);
+ 
+      if (animate) {
+        gsap.to(content, {
+          y: -target,
+          duration: DUR,
+          ease: EASE,
+          overwrite: "auto",
+          onUpdate: () => {
+            // Keep virtualY in sync during tween so ScrollTrigger
+            // sees intermediate positions as the snap animates
+            if (content) {
+              const m = new DOMMatrix(getComputedStyle(content).transform);
+						scrollState.virtualY = -m.m42;
+						scrollState.notify?.();
+            }
+          },
+          onComplete: () => {
+					scrollState.virtualY = target;
+					scrollState.notify?.();
+            snapping = false;
+          },
+        });
+      } else {
+        updateY(target);
+        snapping = false;
+      }
+    }
+ 
+    function goTo(i: number) {
+      if (i < 0 || i >= N || snapping) return;
+      snapping   = true;
+      sectionIdx = i;
+      window.__projectsSectionActive = (i === projectsIdx);
+      if (i === projectsIdx) carousel()?.reset(false);
+      snapTo(i, true);
+    }
+ 
+    // carousel:boundary fired by Projects keyboard handler
+    projectsEl?.addEventListener("carousel:boundary", ((e: CustomEvent) => {
+      e.detail.dir === "next" ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
+    }) as EventListener);
+ 
+    // ── Touch ─────────────────────────────────────────────────────────────
+    const sess = {
+      y0: 0, x0: 0,
+      locked: false,
+      intent: null as "v" | "h" | null,
     };
+    const I_PX = 10;
+    const S_PX = 48;
  
-    const INTENT_THRESHOLD = 8;  // px before intent is locked
-    const SWIPE_THRESHOLD  = 40; // px minimum for a swipe to register
- 
-    // touchstart: capture origin and claim owner
+    // All touch listeners on document, passive:false so we can always
+    // preventDefault — native scroll is already off so this is just a safeguard.
     document.addEventListener("touchstart", (e) => {
-      session.startX      = e.touches[0].clientX;
-      session.startY      = e.touches[0].clientY;
-      session.claimedBy   = null;
-      session.intentLocked = false;
-      session.intent      = null;
-    }, { passive: true });
+      // Let a new gesture interrupt an in-progress snap
+      if (snapping) {
+        gsap.killTweensOf(content);
+        // Sync virtualY with wherever the animation stopped mid-tween
+        if (content) {
+          const m = new DOMMatrix(getComputedStyle(content).transform);
+					scrollState.virtualY = -m.m42;
+					scrollState.notify?.();
+        }
+        snapping = false;
+      }
+      sess.y0     = e.touches[0].clientY;
+      sess.x0     = e.touches[0].clientX;
+      sess.locked = false;
+      sess.intent = null;
+    }, { passive: false });
  
-    // touchmove: lock intent direction and claim owner as early as possible.
-    // FIX: Must be { passive: false } so we can call preventDefault() to stop
-    // native browser scroll during horizontal swipe inside the projects section.
     document.addEventListener("touchmove", (e) => {
-      if (session.intentLocked) {
-        // If a horizontal swipe inside projects is in progress, block page scroll
-        if (session.intent === "horizontal" && session.claimedBy === "projects") {
-          e.preventDefault();
-        }
-        return;
-      }
+      e.preventDefault(); // always block — native scroll is disabled
  
-      const dx = Math.abs(e.touches[0].clientX - session.startX);
-      const dy = Math.abs(e.touches[0].clientY - session.startY);
+      if (sess.locked) return;
+      const dy = Math.abs(e.touches[0].clientY - sess.y0);
+      const dx = Math.abs(e.touches[0].clientX - sess.x0);
+      if (dy < I_PX && dx < I_PX) return;
  
-      if (dx < INTENT_THRESHOLD && dy < INTENT_THRESHOLD) return;
+      sess.intent = dy >= dx ? "v" : "h";
+      sess.locked = true;
+    }, { passive: false });
  
-      session.intent      = dx >= dy ? "horizontal" : "vertical";
-      session.intentLocked = true;
- 
-      // Claim: projects section gets horizontal swipes when active
-      if (session.intent === "horizontal" && window.__projectsSectionActive) {
-        session.claimedBy = "projects";
-        e.preventDefault(); // stop page scroll for horizontal swipe
-      } else if (session.intent === "vertical" && !window.__projectsSectionActive) {
-        session.claimedBy = "body";
-      } else if (session.intent === "vertical" && window.__projectsSectionActive) {
-        // Vertical swipe inside projects section: do nothing here,
-        // let it fall through to exit logic in touchend
-        session.claimedBy = "projects";
-      }
-    }, { passive: false }); // MUST be non-passive to allow preventDefault
- 
-    // touchend: act based on claim and intent
     document.addEventListener("touchend", (e) => {
-      if (sectionAnimating && session.claimedBy === "body") return;
+      if (!sess.locked) return;
  
-      const dx = session.startX - e.changedTouches[0].clientX;
-      const dy = session.startY - e.changedTouches[0].clientY;
+      const dx = sess.x0 - e.changedTouches[0].clientX;
+      const dy = sess.y0 - e.changedTouches[0].clientY;
  
-      if (session.claimedBy === "projects") {
-        // ── Horizontal: navigate panels ────────────────────────────────────
-        if (session.intent === "horizontal" && Math.abs(dx) >= SWIPE_THRESHOLD) {
-          fireProjectsEvent(dx > 0 ? "projects:wheel-next" : "projects:wheel-prev");
-        }
-        // ── Vertical inside projects: exit section ─────────────────────────
-        // Only exit if the swipe is clear and projects is at boundary
-        if (session.intent === "vertical" && Math.abs(dy) >= SWIPE_THRESHOLD) {
-          fireProjectsEvent(dy > 0 ? "projects:wheel-next" : "projects:wheel-prev");
-        }
+      if (sess.intent === "h") {
+        // ── Horizontal → carousel (only inside projects) ──────────────────
+        if (!window.__projectsSectionActive || Math.abs(dx) < S_PX) return;
+        const consumed = dx > 0
+          ? (carousel()?.next() ?? false)
+          : (carousel()?.prev() ?? false);
+        if (!consumed) dx > 0 ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
  
-      } else if (session.claimedBy === "body") {
-        // ── Vertical outside projects: navigate sections ───────────────────
-        if (session.intent === "vertical" && Math.abs(dy) >= SWIPE_THRESHOLD) {
-          if (dy > 0) {
-            if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
-          } else {
-            if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
-          }
+      } else if (sess.intent === "v") {
+        // ── Vertical → section snap (carousel first if on projects) ───────
+        if (Math.abs(dy) < S_PX) return;
+        const goingDown = dy > 0;
+        if (window.__projectsSectionActive) {
+          const consumed = goingDown
+            ? (carousel()?.next() ?? false)
+            : (carousel()?.prev() ?? false);
+          if (!consumed) goingDown ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
+        } else {
+          goingDown ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
         }
       }
     }, { passive: true });
+
+    // ── Wheel fallback (cuando el dispositivo entra como "touch" por error) ──
+    // Si el usuario intenta hacer scroll con rueda/trackpad, forzamos el snap.
+    document.addEventListener(
+      "wheel",
+      (e) => {
+        if (snapping) return;
+        // Evitar ruido (trackpads pequeños)
+        if (Math.abs(e.deltaY) < 10) return;
+        e.preventDefault();
+
+        const goingDown = e.deltaY > 0;
+        if (window.__projectsSectionActive) {
+          const consumed = goingDown ? (carousel()?.next() ?? false) : (carousel()?.prev() ?? false);
+          if (!consumed) goingDown ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
+        } else {
+          goingDown ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
+        }
+      },
+      { passive: false }
+    );
+ 
+		// ── Init ──────────────────────────────────────────────────────────────
+		// Primero sincronizamos la posición virtual y luego forzamos refresh
+		// para que las animaciones iniciales dependientes de ScrollTrigger
+		// se ejecuten correctamente.
+		snapTo(0, false);
+		ScrollTrigger.refresh();
+    window.addEventListener("scrollToNextSection", () => goTo(sectionIdx + 1));
+    window.addEventListener("scrollToPrevSection", () => goTo(sectionIdx - 1));
   }
- 
-  // ─── Keyboard — section level ─────────────────────────────────────────────
-  document.addEventListener("keydown", (e) => {
-    if (!["Space", "PageUp", "PageDown"].includes(e.code)) return;
-    if (window.__projectsSectionActive) return;
-    e.preventDefault();
-    if (sectionAnimating) return;
- 
-    if (e.code === "PageDown" || e.code === "Space") {
-      if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
-    } else {
-      if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
-    }
-  }, { passive: false });
- 
-  // ─── Section event bus (for other components) ─────────────────────────────
-  window.addEventListener("scrollToNextSection", () => {
-    if (currentSectionIndex < numSections - 1) goToSection(currentSectionIndex + 1);
-  });
-  window.addEventListener("scrollToPrevSection", () => {
-    if (currentSectionIndex > 0) goToSection(currentSectionIndex - 1);
-  });
- 
-  lockToNearestSection();
 </script>
 </html>
