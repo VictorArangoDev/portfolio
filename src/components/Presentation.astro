@@ -8,16 +8,14 @@ import video from "../assets/Prueba3.mp4";
     <div class="container-medium">
       <div class="home_intro-grid">
         <div class="home_intro_content">
-          <h1 class="home-title">FullStack<br />Developer</h1>
+          <h1 class="home-title">Transforming<br />Digital Vision.</h1>
           <p class="home-description">
-            If you're looking for a forward-thinking team of creatives to build
-            a brand identity that stands out from the crowd, then you're exactly
-            where you need to be.
+            I specialize in building high-performance FullStack applications that merge 
+            clean architecture with exceptional user experiences. 
           </p>
           <p class="home-description">
-            If you're looking for a forward-thinking team of creatives to build
-            a brand identity that stands out from the crowd, then you're exactly
-            where you need to be.
+            Focused on turning complex business challenges into seamless, scalable 
+            digital realities through precision and purpose.
           </p>
 
           <a href="#contact" class="button button--stroke" data-block="button">
@@ -38,26 +36,42 @@ import video from "../assets/Prueba3.mp4";
   </div>
 </section>
 
+<style>
+  .home-title,
+  .home-description,
+  .button--stroke,
+  .videoAnimation {
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  @media (max-width: 850px) {
+    .home__section {
+      padding: 5rem 2rem 4rem !important;
+    }
+  }
+</style>
+
 <script>
   import { SplitText } from "gsap/SplitText";
   import { gsap } from "gsap";
 
   gsap.registerPlugin(SplitText);
 
-  // ── SplitText setup (must happen before any animation references split) ────
+  // ── SplitText setup ───────────────────────────────────────────────────────
   let split: InstanceType<typeof SplitText> | null = null;
+  const mm = gsap.matchMedia();
 
   function setupSplit() {
     if (split) split.revert();
     split = new SplitText(".home-title", { type: "lines" });
   }
-  setupSplit();
-  window.addEventListener("resize", setupSplit);
 
-  // ── Responsive animation system via gsap.matchMedia() ─────────────────────
-  const mm = gsap.matchMedia();
+  // Pre-hide elements to prevent jump
+  gsap.set([".home-title", ".home-description", ".button--stroke", ".videoAnimation"], { autoAlpha: 0 });
 
   function runIntroAnimations(delay = 0) {
+    setupSplit();
     if (!split) return;
 
     mm.add(
@@ -67,85 +81,50 @@ import video from "../assets/Prueba3.mp4";
         reduceMotion: "(prefers-reduced-motion: reduce)",
       },
       (context) => {
-        const { reduceMotion } = context.conditions as {
-          isDesktop: boolean;
-          isMobile: boolean;
-          reduceMotion: boolean;
-        };
+        const { reduceMotion } = context.conditions as { reduceMotion: boolean };
 
         if (reduceMotion) {
-          // Sin animación: mostrar todo directamente
           gsap.set([".home-title", ".home-description", ".button--stroke", ".videoAnimation"], {
-            opacity: 1,
+            autoAlpha: 1,
             clearProps: "all",
           });
           return;
         }
 
-        const dur = { title: 0.6, text: 0.8, video: 1.2, btn: 0.7 };
         const tl = gsap.timeline({ delay });
 
-        // Title lines
-        tl.from(
-          split!.lines,
-          {
-            rotationX: -90,
-            transformOrigin: "50% 50% -40px",
-            autoAlpha: 0,
-            duration: dur.title,
-            ease: "power3.out",
-            stagger: 0.12,
-          },
+        // Title lines entrance
+        tl.fromTo(split!.lines,
+          { rotationX: -90, transformOrigin: "50% 50% -40px", autoAlpha: 0 },
+          { rotationX: 0, autoAlpha: 1, duration: 0.8, ease: "power3.out", stagger: 0.1 },
           0
         );
 
-        // Descriptions
-        tl.fromTo(
-          ".home-description",
+        // Descriptions slide
+        tl.fromTo(".home-description",
           { autoAlpha: 0, x: -20 },
-          {
-            autoAlpha: 1,
-            x: 0,
-            duration: dur.text,
-            ease: "power2.out",
-            stagger: 0.15,
-          },
-          0.25
+          { autoAlpha: 1, x: 0, duration: 0.8, ease: "power2.out", stagger: 0.1 },
+          0.3
         );
 
-        // CTA button
-        tl.fromTo(
-          ".button--stroke",
-          { autoAlpha: 0, y: 12 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: dur.btn,
-            ease: "power2.out",
-          },
-          0.55
+        // Character / Video reveal
+        tl.fromTo(".videoAnimation",
+          { autoAlpha: 0, scale: 0.9, clipPath: "inset(10% 10% 10% 10% round 20px)" },
+          { autoAlpha: 1, scale: 1, clipPath: "inset(0% 0% 0% 0% round 0px)", duration: 1.4, ease: "expo.out" },
+          0.1
         );
 
-        // Video — reveal with clipPath + scale
-        tl.fromTo(
-          ".videoAnimation",
-          {
-            autoAlpha: 0,
-            scale: 0.88,
-            clipPath: "inset(8% 8% 8% 8% round 16px)",
-          },
-          {
-            autoAlpha: 1,
-            scale: 1,
-            clipPath: "inset(0% 0% 0% 0% round 0px)",
-            duration: dur.video,
-            ease: "power3.out",
-          },
-          0.15
+        // Contact button
+        tl.fromTo(".button--stroke",
+          { autoAlpha: 0, y: 15 },
+          { autoAlpha: 1, y: 0, duration: 0.7, ease: "back.out(1.7)" },
+          0.6
         );
       }
     );
   }
+
+  window.addEventListener("resize", () => setupSplit());
 
   // ── Trigger after preloader finishes (or immediately if already done) ──────
   const PRELOADER_EVENT = "preloader:finish";

@@ -1,3 +1,7 @@
+---
+import projects from "../data/projects.json";
+---
+
 <section
   class="section h-container"
   id="work"
@@ -8,17 +12,18 @@
   <!-- Meta Info -->
   <div class="projects-meta">
     <span class="projects-meta__label">Index</span>
-    <span class="projects-meta__count js-count">— 01 / 06</span>
+    <span class="projects-meta__count js-count">— 01 / {String(projects.length).padStart(2, "0")}</span>
   </div>
 
   <!-- Dots Navigation -->
   <nav class="projects-nav" aria-label="Projects navigation">
-    <button class="projects-nav__dot" aria-label="Go to project 1" aria-current="true"></button>
-    <button class="projects-nav__dot" aria-label="Go to project 2"></button>
-    <button class="projects-nav__dot" aria-label="Go to project 3"></button>
-    <button class="projects-nav__dot" aria-label="Go to project 4"></button>
-    <button class="projects-nav__dot" aria-label="Go to project 5"></button>
-    <button class="projects-nav__dot" aria-label="Go to project 6"></button>
+    {projects.map((_, i) => (
+      <button 
+        class="projects-nav__dot" 
+        aria-label={`Go to project ${i + 1}`} 
+        aria-current={i === 0 ? "true" : "false"}
+      ></button>
+    ))}
   </nav>
 
   <!-- Progress Bar -->
@@ -26,149 +31,38 @@
     <div class="projects-progress__fill js-fill"></div>
   </div>
 
-  <!-- ── Project 01 ────────────────────────────────────────────────────────── -->
-  <article class="h-panel is-active" style="--accent: #5eff00;">
-    <div class="panel__info">
-      <span class="panel__id">PRJ-01</span>
-      <span class="panel__cat">FullStack • 2024</span>
-      <h2 class="panel__title">Quantum<br />Dashboard</h2>
-      <p class="panel__desc">
-        A deep-data visualization platform for real-time quantum computing metrics.
-      </p>
-      <ul class="panel__tags">
-        <li>Next.js</li>
-        <li>Three.js</li>
-        <li>GSAP</li>
-      </ul>
-      <div class="panel__foot">
-        <button class="panel__cta">View Project</button>
-      </div>
-    </div>
-    <div class="panel__visual">
-      <div class="panel__visual-glow"></div>
-      <span class="panel__visual-num">01</span>
-    </div>
-  </article>
+  {projects.map((project, index) => (
+    <article 
+      class={`h-panel ${index === 0 ? 'is-active' : ''}`} 
+      style={`--accent: ${project.accentColor};`}
+    >
+      <div class="panel__info">
+        <span class="panel__id">{project.id}</span>
+        <span class="panel__cat">{project.category} • {project.year}</span>
+        <h2 class="panel__title" set:html={project.title}></h2>
+        <p class="panel__desc">{project.description}</p>
+        
+        <ul class="panel__tags">
+          {project.tags.map(tag => (
+            <li>{tag}</li>
+          ))}
+        </ul>
 
-  <!-- ── Project 02 ────────────────────────────────────────────────────────── -->
-  <article class="h-panel" style="--accent: #ff0055;">
-    <div class="panel__info">
-      <span class="panel__id">PRJ-02</span>
-      <span class="panel__cat">E-Commerce • 2023</span>
-      <h2 class="panel__title">Nova<br />Store</h2>
-      <p class="panel__desc">
-        The future of sustainable fashion, curated for a digital-first generation.
-      </p>
-      <ul class="panel__tags">
-        <li>Astro</li>
-        <li>Shopify</li>
-        <li>Tailwind</li>
-      </ul>
-      <div class="panel__foot">
-        <button class="panel__cta">View Project</button>
+        <div class="panel__foot">
+          <a href={project.link} target="_blank" class="panel__cta">View Source</a>
+        </div>
       </div>
-    </div>
-    <div class="panel__visual">
-      <div class="panel__visual-glow"></div>
-      <span class="panel__visual-num">02</span>
-    </div>
-  </article>
 
-  <!-- ── Project 03 ────────────────────────────────────────────────────────── -->
-  <article class="h-panel" style="--accent: #00ccff;">
-    <div class="panel__info">
-      <span class="panel__id">PRJ-03</span>
-      <span class="panel__cat">AI Tools • 2024</span>
-      <h2 class="panel__title">Cortex<br />AI</h2>
-      <p class="panel__desc">
-        Automated workflow generation for small-to-medium creative agencies.
-      </p>
-      <ul class="panel__tags">
-        <li>Python</li>
-        <li>React</li>
-        <li>PyTorch</li>
-      </ul>
-      <div class="panel__foot">
-        <button class="panel__cta">View Project</button>
+      <div class="panel__visual">
+        <div class="panel__visual-glow"></div>
+        {project.visual.type === "number" ? (
+          <span class="panel__visual-num">{project.visual.value}</span>
+        ) : (
+          <img src={project.visual.url} alt={project.id} class="panel__img" />
+        )}
       </div>
-    </div>
-    <div class="panel__visual">
-      <div class="panel__visual-glow"></div>
-      <span class="panel__visual-num">03</span>
-    </div>
-  </article>
-
-  <!-- ── Project 04 ────────────────────────────────────────────────────────── -->
-  <article class="h-panel" style="--accent: #ffbb00;">
-    <div class="panel__info">
-      <span class="panel__id">PRJ-04</span>
-      <span class="panel__cat">Productivity • 2023</span>
-      <h2 class="panel__title">Focus<br />Flow</h2>
-      <p class="panel__desc">
-        A minimalist distraction-free environment for deep work and writing.
-      </p>
-      <ul class="panel__tags">
-        <li>Desktop</li>
-        <li>Rust</li>
-        <li>Tauri</li>
-      </ul>
-      <div class="panel__foot">
-        <button class="panel__cta">View Project</button>
-      </div>
-    </div>
-    <div class="panel__visual">
-      <div class="panel__visual-glow"></div>
-      <span class="panel__visual-num">04</span>
-    </div>
-  </article>
-
-  <!-- ── Project 05 ────────────────────────────────────────────────────────── -->
-  <article class="h-panel" style="--accent: #ae00ff;">
-    <div class="panel__info">
-      <span class="panel__id">PRJ-05</span>
-      <span class="panel__cat">Web3 • 2024</span>
-      <h2 class="panel__title">Ether<br />Scan</h2>
-      <p class="panel__desc">
-        A cleaner way to visualize gas prices and network congested areas.
-      </p>
-      <ul class="panel__tags">
-        <li>Web3.js</li>
-        <li>Vue</li>
-        <li>D3.js</li>
-      </ul>
-      <div class="panel__foot">
-        <button class="panel__cta">View Project</button>
-      </div>
-    </div>
-    <div class="panel__visual">
-      <div class="panel__visual-glow"></div>
-      <span class="panel__visual-num">05</span>
-    </div>
-  </article>
-
-  <!-- ── Project 06 ────────────────────────────────────────────────────────── -->
-  <article class="h-panel" style="--accent: #ff4d00;">
-    <div class="panel__info">
-      <span class="panel__id">PRJ-06</span>
-      <span class="panel__cat">Agency • 2023</span>
-      <h2 class="panel__title">Studio<br />Zero</h2>
-      <p class="panel__desc">
-        Collaborative workspace for designers and clients to talk visual language.
-      </p>
-      <ul class="panel__tags">
-        <li>Node.js</li>
-        <li>Socket.io</li>
-        <li>WebGL</li>
-      </ul>
-      <div class="panel__foot">
-        <button class="panel__cta">View Project</button>
-      </div>
-    </div>
-    <div class="panel__visual">
-      <div class="panel__visual-glow"></div>
-      <span class="panel__visual-num">06</span>
-    </div>
-  </article>
+    </article>
+  ))}
 </section>
 
 <style>
@@ -222,7 +116,7 @@
   /* ── Dots ────────────────────────────────────────────────────────────────── */
   .projects-nav {
     position: absolute;
-    bottom: 3.5rem;
+    bottom: 8.5rem;
     right: 4.5rem;
     display: flex;
     flex-direction: column;
@@ -319,22 +213,23 @@
   }
   .panel__title {
     font-family: "Terra", serif;
-    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-size: clamp(3.2rem, 6vw, 6rem);
     font-weight: 300;
     letter-spacing: -0.04em;
-    line-height: 0.85;
+    line-height: 0.9;
     color: #fff;
     margin: 0;
   }
   .panel__desc {
     font-size: 1rem;
-    line-height: 1.7;
+    line-height: 1.6;
     color: rgba(255, 255, 255, 0.5);
-    max-width: 40ch;
+    max-width: 45ch;
     margin: 0.5rem 0;
   }
   .panel__tags {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     list-style: none;
     padding: 0;
@@ -366,6 +261,7 @@
     transition: all 0.4s ease;
     overflow: hidden;
     position: relative;
+    text-decoration: none;
   }
   .panel__cta:hover {
     border-color: var(--accent);
@@ -386,6 +282,11 @@
     justify-content: center;
     overflow: hidden;
     box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
+  }
+  .panel____img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   .panel__visual-glow {
     position: absolute;
@@ -413,11 +314,7 @@
       left: 2rem;
       top: 2rem;
     }
-   /* .projects-nav {
-      translate: -50% 0;
-      flex-direction: row;
-      bottom: 2.5rem;
-    }*/
+   
     .h-panel {
       grid-template-columns: 1fr;
       padding: 5rem 2rem 4rem;
@@ -428,7 +325,10 @@
       order: -1;
     }
     .panel__title {
-      font-size: clamp(2.5rem, 11vw, 4rem);
+      font-size: clamp(2.2rem, 10vw, 3.5rem);
+    }
+    .panel__desc {
+      font-size: 0.95rem;
     }
   }
 </style>
@@ -524,7 +424,7 @@
 
   const mm = gsap.matchMedia();
   mm.add({
-    isDesktop: "(min-width: 769px)",
+    isDesktop: "(min-width: 851px)",
   }, (context) => {
     const { isDesktop } = context.conditions as { isDesktop: boolean };
     
@@ -543,7 +443,6 @@
     if (isDesktop) {
       window.addEventListener("section:entered", onEnter);
     } else {
-      // Touch support for horizontal slider on mobile
       Observer.create({
         target: ".h-container",
         type: "touch,pointer",

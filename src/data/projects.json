@@ -1,0 +1,77 @@
+[
+  {
+    "id": "PRJ-01",
+    "number": "01",
+    "title": "Factura<br />EPM",
+    "category": "FullStack",
+    "year": "2024",
+    "description": "Sistema de generación de facturas de servicios prepago para EPM. Convierte JSON de datos en PDFs personalizados con gráficos de consumo, códigos QR y diseño de marca. Incluye un CLI propio con Puppeteer, validación de esquemas con Zod y arquitectura por capas (api/services/utils).",
+    "tags": ["Astro", "React", "Tailwind CSS", "Puppeteer", "Node.js", "Zod", "CLI"],
+    "accentColor": "#00c2ff",
+    "link": "https://github.com/VictorArangoDev",
+    "visual": {
+      "type": "number",
+      "value": "01"
+    }
+  },
+  {
+    "id": "PRJ-02",
+    "number": "02",
+    "title": "Dev<br />Portfolio",
+    "category": "Frontend",
+    "year": "2026",
+    "description": "Portafolio personal construido en JavaScript con arquitectura moderna, animaciones fluidas y diseño centrado en la experiencia. Activo en producción con commits al día de hoy — un proyecto vivo que evoluciona junto a las habilidades de su autor.",
+    "tags": ["JavaScript", "HTML", "CSS", "Animaciones", "Git Flow"],
+    "accentColor": "#a855f7",
+    "link": "https://github.com/VictorArangoDev/portfolio",
+    "visual": {
+      "type": "number",
+      "value": "02"
+    }
+  },
+  {
+    "id": "PRJ-03",
+    "number": "03",
+    "title": "PDF<br />Comparator",
+    "category": "Tooling",
+    "year": "2025",
+    "description": "Herramienta de automatización que detecta diferencias visuales y estructurales entre versiones de archivos PDF. Creada para resolver un problema real de producción en EPM: validar cambios en facturas masivas sin revisión manual, eliminando errores humanos en el proceso.",
+    "tags": ["JavaScript", "Node.js", "PDF", "Automatización", "CLI"],
+    "accentColor": "#f97316",
+    "link": "https://github.com/VictorArangoDev/PDF-Comparator",
+    "visual": {
+      "type": "number",
+      "value": "03"
+    }
+  },
+  {
+    "id": "PRJ-04",
+    "number": "04",
+    "title": "Mail<br />Creator",
+    "category": "FullStack",
+    "year": "2024",
+    "description": "Motor de creación y envío de correos transaccionales y masivos construido con Astro. Permite diseñar plantillas de email dinámicas con datos variables y enviarlas a escala, replicando en código abierto la lógica de comunicaciones multicanal desarrollada para EPM en Cadena S.A.",
+    "tags": ["Astro", "Node.js", "Email", "Plantillas dinámicas"],
+    "accentColor": "#22c55e",
+    "link": "https://github.com/VictorArangoDev/mail-creator",
+    "visual": {
+      "type": "number",
+      "value": "04"
+    }
+  },
+  {
+    "id": "PRJ-05",
+    "number": "05",
+    "title": "Services<br />V4",
+    "category": "Frontend",
+    "year": "2024",
+    "description": "Sitio web de servicios profesionales desarrollado con Astro, publicado bajo licencia MIT. Es el proyecto de mayor tamaño y madurez del portafolio público (9 MB de assets), con arquitectura orientada a rendimiento, SEO y despliegue en producción.",
+    "tags": ["Astro", "CSS", "MIT License", "SEO", "Performance"],
+    "accentColor": "#f43f5e",
+    "link": "https://github.com/VictorArangoDev/ServicesV4",
+    "visual": {
+      "type": "number",
+      "value": "05"
+    }
+  }
+]
