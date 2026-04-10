@@ -1,530 +1,569 @@
----
-import Title from "./title.astro";
-
-const projects = [
-  {
-    id: "01",
-    title: "Luminary",
-    category: "Brand Identity · Web",
-    year: "2024",
-    description: "A full-spectrum identity system for a luxury lighting studio. From logotype to digital presence.",
-    tags: ["Branding", "Art Direction", "Webflow"],
-    accent: "#C8A96E",
-  },
-  {
-    id: "02",
-    title: "Orbital",
-    category: "Product · Motion",
-    year: "2024",
-    description: "Dashboard interface for a SaaS analytics platform. Data meets craft.",
-    tags: ["UI/UX", "Design System", "React"],
-    accent: "#7B9EA6",
-  },
-  {
-    id: "03",
-    title: "Sólido",
-    category: "Editorial · Print",
-    year: "2023",
-    description: "Independent architecture magazine. Grid-breaking layouts and raw typographic expression.",
-    tags: ["Editorial", "Typography", "Print"],
-    accent: "#C47B5A",
-  },
-  {
-    id: "04",
-    title: "Kōdo",
-    category: "Web App · Dev",
-    year: "2023",
-    description: "Developer tooling for real-time collaboration. Performance-first, no compromises.",
-    tags: ["TypeScript", "Astro", "Puppeteer"],
-    accent: "#8B7EC8",
-  },
-  {
-    id: "05",
-    title: "Mirlo",
-    category: "Mobile · UX",
-    year: "2023",
-    description: "A mindfulness app that respects your attention. Intentional design at every layer.",
-    tags: ["Mobile", "UX Research", "Figma"],
-    accent: "#7DAF8C",
-  },
-  {
-    id: "06",
-    title: "Vanta",
-    category: "3D · Interactive",
-    year: "2022",
-    description: "Generative 3D experience for a fashion house. Where code meets couture.",
-    tags: ["Three.js", "GLSL", "WebGL"],
-    accent: "#A67B9E",
-  },
-];
----
-
 <section
-  class="swipe-section section"
-  id="projects"
-  aria-label="Projects"
-  role="region"
-  data-panel-count={projects.length}
+  class="section h-container"
+  id="work"
+  data-type="horizontal"
 >
-  <div class="projects-grid-bg" aria-hidden="true"></div>
+  <div class="projects-grid-bg"></div>
 
-  <!-- Meta -->
-  <div class="projects-meta" aria-hidden="true">
-    <span class="projects-meta__label">Selected Work</span>
-    <span class="projects-meta__count js-count">— 01 / {String(projects.length).padStart(2,"0")}</span>
+  <!-- Meta Info -->
+  <div class="projects-meta">
+    <span class="projects-meta__label">Index</span>
+    <span class="projects-meta__count js-count">— 01 / 06</span>
   </div>
 
-  <!-- Dot nav -->
-  <nav class="projects-nav" aria-label="Project navigation">
-    {projects.map((_, i) => (
-      <button
-        class="projects-nav__dot"
-        data-dot={i}
-        aria-label={`Project ${i + 1}`}
-        aria-current={i === 0 ? "true" : "false"}
-      />
-    ))}
+  <!-- Dots Navigation -->
+  <nav class="projects-nav" aria-label="Projects navigation">
+    <button class="projects-nav__dot" aria-label="Go to project 1" aria-current="true"></button>
+    <button class="projects-nav__dot" aria-label="Go to project 2"></button>
+    <button class="projects-nav__dot" aria-label="Go to project 3"></button>
+    <button class="projects-nav__dot" aria-label="Go to project 4"></button>
+    <button class="projects-nav__dot" aria-label="Go to project 5"></button>
+    <button class="projects-nav__dot" aria-label="Go to project 6"></button>
   </nav>
 
-  <!-- Progress -->
-  <div class="projects-progress" aria-hidden="true">
+  <!-- Progress Bar -->
+  <div class="projects-progress">
     <div class="projects-progress__fill js-fill"></div>
   </div>
 
-  <!-- Panels -->
-  {projects.map((p, i) => (
-    <article
-      class={`panel${i === 0 ? " is-active" : ""}`}
-      data-panel={i}
-      style={`--accent:${p.accent}`}
-      aria-hidden={i !== 0 ? "true" : "false"}
-    >
-      <div class="panel__info">
-        <span class="panel__id">{p.id}</span>
-        <span class="panel__cat">{p.category}</span>
-        <h2 class="panel__title">{p.title}</h2>
-        <p class="panel__desc">{p.description}</p>
-        <ul class="panel__tags">
-          {p.tags.map(t => <li>{t}</li>)}
-        </ul>
-        <div class="panel__foot">
-          <button class="panel__cta">
-            View Project
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M2 7h10M12 7L8 3M12 7L8 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-            </svg>
-          </button>
-          <span class="panel__year">{p.year}</span>
-        </div>
+  <!-- ── Project 01 ────────────────────────────────────────────────────────── -->
+  <article class="h-panel is-active" style="--accent: #5eff00;">
+    <div class="panel__info">
+      <span class="panel__id">PRJ-01</span>
+      <span class="panel__cat">FullStack • 2024</span>
+      <h2 class="panel__title">Quantum<br />Dashboard</h2>
+      <p class="panel__desc">
+        A deep-data visualization platform for real-time quantum computing metrics.
+      </p>
+      <ul class="panel__tags">
+        <li>Next.js</li>
+        <li>Three.js</li>
+        <li>GSAP</li>
+      </ul>
+      <div class="panel__foot">
+        <button class="panel__cta">View Project</button>
       </div>
+    </div>
+    <div class="panel__visual">
+      <div class="panel__visual-glow"></div>
+      <span class="panel__visual-num">01</span>
+    </div>
+  </article>
 
-      <div class="panel__visual">
-        <div class="panel__visual-glow"></div>
-        <span class="panel__visual-num">{p.id}</span>
+  <!-- ── Project 02 ────────────────────────────────────────────────────────── -->
+  <article class="h-panel" style="--accent: #ff0055;">
+    <div class="panel__info">
+      <span class="panel__id">PRJ-02</span>
+      <span class="panel__cat">E-Commerce • 2023</span>
+      <h2 class="panel__title">Nova<br />Store</h2>
+      <p class="panel__desc">
+        The future of sustainable fashion, curated for a digital-first generation.
+      </p>
+      <ul class="panel__tags">
+        <li>Astro</li>
+        <li>Shopify</li>
+        <li>Tailwind</li>
+      </ul>
+      <div class="panel__foot">
+        <button class="panel__cta">View Project</button>
       </div>
-    </article>
-  ))}
+    </div>
+    <div class="panel__visual">
+      <div class="panel__visual-glow"></div>
+      <span class="panel__visual-num">02</span>
+    </div>
+  </article>
+
+  <!-- ── Project 03 ────────────────────────────────────────────────────────── -->
+  <article class="h-panel" style="--accent: #00ccff;">
+    <div class="panel__info">
+      <span class="panel__id">PRJ-03</span>
+      <span class="panel__cat">AI Tools • 2024</span>
+      <h2 class="panel__title">Cortex<br />AI</h2>
+      <p class="panel__desc">
+        Automated workflow generation for small-to-medium creative agencies.
+      </p>
+      <ul class="panel__tags">
+        <li>Python</li>
+        <li>React</li>
+        <li>PyTorch</li>
+      </ul>
+      <div class="panel__foot">
+        <button class="panel__cta">View Project</button>
+      </div>
+    </div>
+    <div class="panel__visual">
+      <div class="panel__visual-glow"></div>
+      <span class="panel__visual-num">03</span>
+    </div>
+  </article>
+
+  <!-- ── Project 04 ────────────────────────────────────────────────────────── -->
+  <article class="h-panel" style="--accent: #ffbb00;">
+    <div class="panel__info">
+      <span class="panel__id">PRJ-04</span>
+      <span class="panel__cat">Productivity • 2023</span>
+      <h2 class="panel__title">Focus<br />Flow</h2>
+      <p class="panel__desc">
+        A minimalist distraction-free environment for deep work and writing.
+      </p>
+      <ul class="panel__tags">
+        <li>Desktop</li>
+        <li>Rust</li>
+        <li>Tauri</li>
+      </ul>
+      <div class="panel__foot">
+        <button class="panel__cta">View Project</button>
+      </div>
+    </div>
+    <div class="panel__visual">
+      <div class="panel__visual-glow"></div>
+      <span class="panel__visual-num">04</span>
+    </div>
+  </article>
+
+  <!-- ── Project 05 ────────────────────────────────────────────────────────── -->
+  <article class="h-panel" style="--accent: #ae00ff;">
+    <div class="panel__info">
+      <span class="panel__id">PRJ-05</span>
+      <span class="panel__cat">Web3 • 2024</span>
+      <h2 class="panel__title">Ether<br />Scan</h2>
+      <p class="panel__desc">
+        A cleaner way to visualize gas prices and network congested areas.
+      </p>
+      <ul class="panel__tags">
+        <li>Web3.js</li>
+        <li>Vue</li>
+        <li>D3.js</li>
+      </ul>
+      <div class="panel__foot">
+        <button class="panel__cta">View Project</button>
+      </div>
+    </div>
+    <div class="panel__visual">
+      <div class="panel__visual-glow"></div>
+      <span class="panel__visual-num">05</span>
+    </div>
+  </article>
+
+  <!-- ── Project 06 ────────────────────────────────────────────────────────── -->
+  <article class="h-panel" style="--accent: #ff4d00;">
+    <div class="panel__info">
+      <span class="panel__id">PRJ-06</span>
+      <span class="panel__cat">Agency • 2023</span>
+      <h2 class="panel__title">Studio<br />Zero</h2>
+      <p class="panel__desc">
+        Collaborative workspace for designers and clients to talk visual language.
+      </p>
+      <ul class="panel__tags">
+        <li>Node.js</li>
+        <li>Socket.io</li>
+        <li>WebGL</li>
+      </ul>
+      <div class="panel__foot">
+        <button class="panel__cta">View Project</button>
+      </div>
+    </div>
+    <div class="panel__visual">
+      <div class="panel__visual-glow"></div>
+      <span class="panel__visual-num">06</span>
+    </div>
+  </article>
 </section>
 
 <style>
-/* ── Section ─────────────────────────────────────────────────────────────── */
-.swipe-section {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  background: #080808;
-  overflow: hidden;
-}
-
-/* ── Grid bg ─────────────────────────────────────────────────────────────── */
-.projects-grid-bg {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-  background-size: 56px 56px;
-  pointer-events: none;
-}
-
-/* ── Meta ────────────────────────────────────────────────────────────────── */
-.projects-meta {
-  position: absolute;
-  top: 2rem;
-  left: 2.5rem;
-  display: flex;
-  gap: .75rem;
-  align-items: center;
-  z-index: 10;
-  pointer-events: none;
-}
-.projects-meta__label,
-.projects-meta__count {
-  font-family: 'DM Mono', monospace;
-  font-size: .62rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,.35);
-}
-.projects-meta__count { color: rgba(255,255,255,.55); }
-
-/* ── Dots ────────────────────────────────────────────────────────────────── */
-.projects-nav {
-  position: absolute;
-  bottom: 2.25rem;
-  left: 50%;
-  translate: -50% 0;
-  display: flex;
-  gap: .45rem;
-  z-index: 10;
-}
-.projects-nav__dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255,255,255,.18);
-  cursor: pointer;
-  padding: 0;
-  transition: background .3s, scale .3s;
-}
-.projects-nav__dot[aria-current="true"] {
-  background: #fff;
-  scale: 1.5;
-}
-
-/* ── Progress ────────────────────────────────────────────────────────────── */
-.projects-progress {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 2px;
-  background: rgba(255,255,255,.07);
-  z-index: 10;
-  overflow: hidden;
-}
-.projects-progress__fill {
-  height: 100%;
-  width: 100%;
-  background: var(--accent, #fff);
-  transform-origin: left;
-  transform: scaleX(calc(1 / 6)); /* updated by JS */
-  transition: transform .45s cubic-bezier(.4,0,.2,1),
-              background .45s;
-}
-
-/* ── Panels ──────────────────────────────────────────────────────────────── */
-.panel {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 2rem;
-  padding: 6rem 2.5rem 4rem;
-  /* all panels start hidden below */
-  opacity: 0;
-  transform: translateY(40px);
-  pointer-events: none;
-  transition:
-    opacity .5s cubic-bezier(.4,0,.2,1),
-    transform .5s cubic-bezier(.4,0,.2,1);
-}
-.panel.is-active {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-.panel.is-exit-up {
-  opacity: 0;
-  transform: translateY(-40px);
-}
-.panel.is-exit-down {
-  opacity: 0;
-  transform: translateY(40px);
-}
-.panel.is-exit-left {
-  opacity: 0;
-  transform: translateX(-48px);
-}
-.panel.is-exit-right {
-  opacity: 0;
-  transform: translateX(48px);
-}
-
-/* ── Panel info ──────────────────────────────────────────────────────────── */
-.panel__info {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-.panel__id {
-  font-family: 'DM Mono', monospace;
-  font-size: .62rem;
-  letter-spacing: .3em;
-  color: var(--accent);
-  text-transform: uppercase;
-}
-.panel__cat {
-  font-family: 'DM Mono', monospace;
-  font-size: .65rem;
-  letter-spacing: .14em;
-  color: rgba(255,255,255,.32);
-  text-transform: uppercase;
-}
-.panel__title {
-  font-family: 'Terra', Georgia, serif;
-  font-size: clamp(2.8rem, 5.5vw, 5rem);
-  font-weight: 300;
-  letter-spacing: -.03em;
-  line-height: .95;
-  color: #fff;
-  margin: 0;
-}
-.panel__desc {
-  font-size: .88rem;
-  line-height: 1.65;
-  color: rgba(255,255,255,.45);
-  max-width: 36ch;
-  margin: 0;
-}
-.panel__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .35rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.panel__tags li {
-  font-family: 'DM Mono', monospace;
-  font-size: .58rem;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
-  padding: .28rem .6rem;
-  border-radius: 100px;
-}
-.panel__foot {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  margin-top: .25rem;
-}
-.panel__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: .45rem;
-  background: var(--accent);
-  color: #080808;
-  border: none;
-  padding: .7rem 1.4rem;
-  font-family: 'DM Mono', monospace;
-  font-size: .65rem;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  border-radius: 100px;
-  transition: opacity .2s;
-}
-.panel__cta:hover { opacity: .82; }
-.panel__year {
-  font-family: 'DM Mono', monospace;
-  font-size: .62rem;
-  color: rgba(255,255,255,.22);
-}
-
-/* ── Panel visual ────────────────────────────────────────────────────────── */
-.panel__visual {
-  position: relative;
-  height: 62vh;
-  max-height: 580px;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--accent) 10%, #111);
-  border: 1px solid color-mix(in srgb, var(--accent) 14%, transparent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.panel__visual-glow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse at 50% 60%,
-    color-mix(in srgb, var(--accent) 22%, transparent),
-    transparent 70%
-  );
-}
-.panel__visual-num {
-  font-family: 'DM Mono', monospace;
-  font-size: clamp(7rem, 16vw, 14rem);
-  font-weight: 900;
-  color: color-mix(in srgb, var(--accent) 7%, transparent);
-  line-height: 1;
-  letter-spacing: -.04em;
-  user-select: none;
-  position: relative;
-}
-
-/* ── Mobile ──────────────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .panel {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    padding: 5rem 1.25rem 4.5rem;
-    gap: 1.25rem;
-    align-items: start;
+  /* ── Section ─────────────────────────────────────────────────────────────── */
+  .section.h-container {
+    background: #060606;
+    overflow: hidden;
   }
-  .panel__visual {
-    height: 36vh;
-    max-height: none;
-    order: -1;
+
+  /* ── Grid bg ───────────────────────────────────────────────────────────── */
+  .projects-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: center center;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── Meta ────────────────────────────────────────────────────────────────── */
+  .projects-meta {
+    position: absolute;
+    top: 3rem;
+    left: 4.5rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .projects-meta__label {
+    font-family: "DM Mono", monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+  }
+  .projects-meta__count {
+    font-family: "DM Mono", monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: #fff;
+  }
+
+  /* ── Dots ────────────────────────────────────────────────────────────────── */
+  .projects-nav {
+    position: absolute;
+    bottom: 3.5rem;
+    left: 4.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    z-index: 10;
+  }
+  .projects-nav__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+  }
+  .projects-nav__dot:after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid var(--accent, #fff);
+    opacity: 0;
+    scale: 0.5;
+    transition: all 0.4s ease;
+  }
+  .projects-nav__dot[aria-current="true"] {
+    background: var(--accent, #fff);
+    border-color: var(--accent, #fff);
+    scale: 1.25;
+  }
+  .projects-nav__dot[aria-current="true"]:after {
+    opacity: 1;
+    scale: 1.5;
+  }
+
+  /* ── Progress Bar ───────────────────────────────────────────────────────── */
+  .projects-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    z-index: 10;
+  }
+  .projects-progress__fill {
+    height: 100%;
+    width: 100%;
+    background: var(--accent, #fff);
+    transform-origin: left;
+    filter: drop-shadow(0 0 8px var(--accent, #fff));
+  }
+
+  /* ── Panels ──────────────────────────────────────────────────────────────── */
+  .h-panel {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    align-items: center;
+    gap: 5rem;
+    padding: 2rem 10rem;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 0.4s ease;
+  }
+  .h-panel.is-active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ── Panel info ──────────────────────────────────────────────────────────── */
+  .panel__info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .panel__id {
+    font-family: "DM Mono", monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.5em;
+    color: var(--accent);
+    opacity: 0.8;
+  }
+  .panel__cat {
+    font-family: "DM Mono", monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
   }
   .panel__title {
-    font-size: clamp(2rem, 9vw, 3rem);
+    font-family: "Terra", serif;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    line-height: 0.85;
+    color: #fff;
+    margin: 0;
   }
-  .projects-meta { left: 1.25rem; }
-}
+  .panel__desc {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.5);
+    max-width: 40ch;
+    margin: 0.5rem 0;
+  }
+  .panel__tags {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+  }
+  .panel__tags li {
+    font-family: "DM Mono", monospace;
+    font-size: 0.6rem;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.35rem 0.8rem;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .panel__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 1rem 2rem;
+    font-family: "DM Mono", monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 100px;
+    width: fit-content;
+    transition: all 0.4s ease;
+    overflow: hidden;
+    position: relative;
+  }
+  .panel__cta:hover {
+    border-color: var(--accent);
+    color: #000;
+    background: var(--accent);
+  }
+
+  /* ── Panel visual ────────────────────────────────────────────────────────── */
+  .panel__visual {
+    position: relative;
+    height: 70vh;
+    max-height: 650px;
+    border-radius: 12px;
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
+  }
+  .panel__visual-glow {
+    position: absolute;
+    inset: -20%;
+    background: radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--accent) 15%, transparent),
+      transparent 60%
+    );
+    filter: blur(40px);
+  }
+  .panel__visual-num {
+    font-family: "DM Mono", monospace;
+    font-size: clamp(8rem, 20vw, 18rem);
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.03);
+    line-height: 1;
+    letter-spacing: -0.05em;
+    pointer-events: none;
+  }
+
+  /* ── Mobile ──────────────────────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .projects-meta {
+      left: 2rem;
+      top: 2rem;
+    }
+    .projects-nav {
+      left: 50%;
+      translate: -50% 0;
+      flex-direction: row;
+      bottom: 2.5rem;
+    }
+    .h-panel {
+      grid-template-columns: 1fr;
+      padding: 5rem 2rem 4rem;
+      gap: 1.5rem;
+    }
+    .panel__visual {
+      height: 38vh;
+      order: -1;
+    }
+    .panel__title {
+      font-size: clamp(2.5rem, 11vw, 4rem);
+    }
+  }
 </style>
 
 <script>
-  (() => {
-    const section = document.querySelector<HTMLElement>(".swipe-section");
-    if (!section) return;
+  import { gsap } from "gsap";
+  import { SplitText } from "gsap/SplitText";
+  import { Observer } from "gsap/Observer";
 
-    const panels   = Array.from(section.querySelectorAll<HTMLElement>(".panel"));
-    const dots     = Array.from(section.querySelectorAll<HTMLButtonElement>("[data-dot]"));
-    const fill     = section.querySelector<HTMLElement>(".js-fill");
-    const countEl  = section.querySelector<HTMLElement>(".js-count");
-    const TOTAL    = panels.length;
+  gsap.registerPlugin(SplitText, Observer);
 
-    let current = 0;
-    let busy    = false;
+  const panels = gsap.utils.toArray<HTMLElement>(".h-panel");
+  const dots = gsap.utils.toArray<HTMLButtonElement>(".projects-nav__dot");
+  const countEl = document.querySelector<HTMLElement>(".js-count");
+  const fillEl = document.querySelector<HTMLElement>(".js-fill");
+  const gridBg = document.querySelector<HTMLElement>(".projects-grid-bg");
+  const total = panels.length;
 
-    // ── UI sync ─────────────────────────────────────────────────────────────
-    function syncUI(i: number) {
-      if (countEl) {
-        countEl.textContent = `— ${String(i + 1).padStart(2,"0")} / ${String(TOTAL).padStart(2,"0")}`;
-      }
-      if (fill) {
-        const accent = getComputedStyle(panels[i]).getPropertyValue("--accent").trim();
-        fill.style.background = accent;
-        fill.style.transform  = `scaleX(${(i + 1) / TOTAL})`;
-      }
-      dots.forEach((d, idx) => d.setAttribute("aria-current", idx === i ? "true" : "false"));
-      panels.forEach((p, idx) => p.setAttribute("aria-hidden", idx === i ? "false" : "true"));
-    }
+  let currentPanelIndex = 0;
+  let isAnimating = false;
+  let hasFirstAnimated = false;
 
-    // ── Transition ──────────────────────────────────────────────────────────
-    // Desktop: panels slide vertically (up/down).
-    // Mobile:  panels slide horizontally (left/right) — matches swipe direction.
-    const IS_TOUCH = window.matchMedia("(pointer: coarse)").matches;
+  const splitTitles = panels.map(p => {
+    const title = p.querySelector(".panel__title");
+    return title ? new SplitText(title, { type: "chars" }) : null;
+  });
 
-    function goTo(next: number, direction: "next" | "prev") {
-      if (busy || next === current || next < 0 || next >= TOTAL) return;
-      busy = true;
-
-      const outgoing = panels[current];
-      const incoming = panels[next];
-
-      // Exit classes for CSS transition on outgoing panel
-      if (IS_TOUCH) {
-        outgoing.classList.remove("is-active");
-        outgoing.classList.add(direction === "next" ? "is-exit-left" : "is-exit-right");
-      } else {
-        outgoing.classList.remove("is-active");
-        outgoing.classList.add(direction === "next" ? "is-exit-up" : "is-exit-down");
-      }
-
-      // Set incoming panel's starting position (no transition yet)
-      incoming.style.transition = "none";
-      incoming.style.opacity    = "0";
-      if (IS_TOUCH) {
-        incoming.style.transform = direction === "next" ? "translateX(48px)" : "translateX(-48px)";
-      } else {
-        incoming.style.transform = direction === "next" ? "translateY(40px)" : "translateY(-40px)";
-      }
-
-      // Force reflow so browser registers the start state before animating
-      incoming.getBoundingClientRect();
-
-      // Animate in
-      incoming.style.transition = "";
-      // Asegura que no queden "stale" exit-classes del modo anterior,
-      // porque en la CSS las clases is-exit-left/right sobreescriben is-active.
-      incoming.classList.remove("is-exit-up", "is-exit-down", "is-exit-left", "is-exit-right");
-      // IMPORTANTE:
-      // Quitamos los estilos inline de estado inicial para que el CSS de
-      // `.panel.is-active` (opacity/transform) tenga prioridad.
-      incoming.style.opacity = "";
-      incoming.style.transform = "";
-      incoming.classList.add("is-active");
-
-      current = next;
-      syncUI(current);
-
-      setTimeout(() => {
-        outgoing.classList.remove("is-exit-up", "is-exit-down", "is-exit-left", "is-exit-right");
-        outgoing.style.opacity   = "";
-        outgoing.style.transform = "";
-        busy = false;
-      }, 520);
-    }
-
-    // ── Public API — called by layout ───────────────────────────────────────
-    function next(): boolean {
-      if (current < TOTAL - 1) { goTo(current + 1, "next"); return true; }
-      return false; // boundary — layout should advance to next section
-    }
-
-    function prev(): boolean {
-      if (current > 0) { goTo(current - 1, "prev"); return true; }
-      return false; // boundary — layout should go to prev section
-    }
-
-    function reset(fromEnd = false) {
-      // Called when layout snaps INTO this section
-      panels.forEach(p => {
-        p.classList.remove("is-active", "is-exit-up", "is-exit-down", "is-exit-left", "is-exit-right");
-        p.style.opacity   = "";
-        p.style.transform = "";
-        p.style.transition = "";
+  function updateUI(index: number) {
+    const panel = panels[index];
+    const accent = getComputedStyle(panel).getPropertyValue("--accent").trim();
+    if (countEl) countEl.textContent = `— ${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
+    if (fillEl) {
+      gsap.to(fillEl, {
+        scaleX: (index + 1) / total,
+        duration: 0.8,
+        ease: "expo.out",
+        backgroundColor: accent,
       });
-      current = fromEnd ? TOTAL - 1 : 0;
-      busy = false;
-      panels[current].classList.add("is-active");
-      syncUI(current);
     }
-
-    // Expose to layout scroll controller
-    (section as any)._carousel = { next, prev, reset };
-
-    // ── Dot clicks ──────────────────────────────────────────────────────────
     dots.forEach((dot, i) => {
-      dot.addEventListener("click", () => {
-        if (i === current) return;
-        goTo(i, i > current ? "next" : "prev");
-      });
+      dot.setAttribute("aria-current", i === index ? "true" : "false");
+      if (i === index) dot.style.setProperty('--accent', accent);
     });
+  }
 
-    // ── Keyboard (only when section is focused/active) ───────────────────────
-    document.addEventListener("keydown", (e) => {
-      if (!window.__projectsSectionActive) return;
-      if (e.code === "ArrowDown" || e.code === "ArrowRight") {
-        e.preventDefault();
-        if (!next()) {
-          section.dispatchEvent(new CustomEvent("carousel:boundary", { detail: { dir: "next" }, bubbles: true }));
-        }
-      } else if (e.code === "ArrowUp" || e.code === "ArrowLeft") {
-        e.preventDefault();
-        if (!prev()) {
-          section.dispatchEvent(new CustomEvent("carousel:boundary", { detail: { dir: "prev" }, bubbles: true }));
-        }
+  function animatePanel(inPanel: HTMLElement, outPanel: HTMLElement | null, direction: number) {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    const tl = gsap.timeline({ onComplete: () => { isAnimating = false; } });
+    const split = splitTitles[panels.indexOf(inPanel)];
+
+    if (gridBg) {
+      gsap.to(gridBg, { x: -direction * 40, duration: 2, ease: "power2.out" });
+    }
+
+    if (outPanel) {
+      const outSplit = splitTitles[panels.indexOf(outPanel)];
+      if (outSplit) {
+        tl.to(outSplit.chars, { y: direction > 0 ? -40 : 40, autoAlpha: 0, stagger: 0.02, duration: 0.4, ease: "power2.in" }, 0);
       }
-    });
+      tl.to(outPanel, { autoAlpha: 0, x: direction > 0 ? -100 : 100, filter: "blur(10px)", scale: 0.95, duration: 0.8, ease: "expo.inOut", onComplete: () => outPanel.classList.remove("is-active") }, 0);
+    }
 
-    // Init
-    reset();
-  })();
+    tl.fromTo(inPanel,
+      { autoAlpha: 0, x: direction > 0 ? 100 : -100, scale: 0.95, filter: "blur(10px)" },
+      { autoAlpha: 1, x: 0, scale: 1, filter: "blur(0px)", duration: 1.2, ease: "expo.inOut", onStart: () => inPanel.classList.add("is-active") },
+      "-=0.6"
+    );
+
+    if (split) {
+      tl.fromTo(split.chars, { y: direction > 0 ? 60 : -60, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.03, duration: 0.8, ease: "back.out(1.4)" }, "-=0.7");
+    }
+
+    const info = inPanel.querySelector(".panel__info")?.children;
+    if (info) {
+      tl.from(gsap.utils.toArray(info).filter(el => !el.classList.contains('panel__title')), { autoAlpha: 0, y: 20, stagger: 0.08, duration: 0.6, ease: "power2.out" }, "-=0.6");
+    }
+    const visual = inPanel.querySelector(".panel__visual");
+    if (visual) tl.from(visual, { scale: 1.1, autoAlpha: 0, duration: 1.2, ease: "expo.out" }, "-=1");
+  }
+
+  function goToPanel(nextIndex: number) {
+    if (nextIndex === currentPanelIndex || isAnimating) return;
+    if (nextIndex < 0 || nextIndex >= total) return;
+    const direction = nextIndex > currentPanelIndex ? 1 : -1;
+    const outPanel = panels[currentPanelIndex];
+    const inPanel = panels[nextIndex];
+    currentPanelIndex = nextIndex;
+    updateUI(nextIndex);
+    animatePanel(inPanel, outPanel, direction);
+  }
+
+  const mm = gsap.matchMedia();
+  mm.add({
+    isDesktop: "(min-width: 769px)",
+  }, (context) => {
+    const { isDesktop } = context.conditions as { isDesktop: boolean };
+    
+    gsap.set(panels, { autoAlpha: 0, x: 0 });
+    panels[0].classList.add("is-active");
+    gsap.set(panels[0], { autoAlpha: 1 });
+    updateUI(0);
+
+    const onEnter = (e: any) => {
+      if (e.detail.id === "work" && !hasFirstAnimated) {
+        hasFirstAnimated = true;
+        animatePanel(panels[0], null, 1);
+      }
+    };
+
+    if (isDesktop) {
+      window.addEventListener("section:entered", onEnter);
+    } else {
+      // Touch support for horizontal slider on mobile
+      Observer.create({
+        target: ".h-container",
+        type: "touch,pointer",
+        onLeft: () => goToPanel(currentPanelIndex + 1),
+        onRight: () => goToPanel(currentPanelIndex - 1),
+        tolerance: 40,
+        preventDefault: false,
+      });
+    }
+
+    dots.forEach((dot, i) => dot.addEventListener("click", () => goToPanel(i)));
+    
+    (window as any).__projectsGoToPanel = (i: number) => goToPanel(i);
+    (window as any).__projectsPanelCount = total;
+    (window as any).__projectsCurrentPanel = () => currentPanelIndex;
+
+    return () => {
+      window.removeEventListener("section:entered", onEnter);
+      splitTitles.forEach(s => s?.revert());
+    };
+  });
 </script>

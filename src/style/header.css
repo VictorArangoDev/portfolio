@@ -184,16 +184,6 @@ svg {
 
 /* =========VARIABLES CSS REUTILIZABLES=============== */
 
-
-.section {
-  width: 100%;
-  height: 100vh;
-  min-height: 100vh;
-  padding: 1rem 1rem;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
 .main {
   height: auto;
   background: rgba(255, 255, 255, 0.055);
@@ -202,6 +192,88 @@ svg {
   -webkit-backdrop-filter: blur(25px);
 
 }
+
+  .main-viewport {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  @media screen and (min-width: 769px) {
+    .main-viewport {
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .main-viewport {
+      position: relative;
+      height: auto;
+      min-height: 100vh;
+    }
+  }
+
+  .sections-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  @media screen and (max-width: 768px) {
+    .sections-wrapper {
+      height: auto;
+    }
+  }
+
+  .section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    min-height: 100vh;
+    will-change: transform, opacity;
+  }
+
+  @media screen and (min-width: 769px) {
+    .section {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    .section.active {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+
+  .h-track {
+    display: flex;
+    height: 100%;
+    width: 300vw;
+    position: absolute;
+    left: 0;
+    top: 0;
+    will-change: transform;
+  }
+
+  .h-panel {
+    width: 100vw;
+    height: 100vh;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+
+
+
 
 /* =========   contenido ============ */
 
@@ -954,10 +1026,19 @@ button {
 .about-section {
   display: flex;
   flex-direction: column;
-  position: relative;
   justify-content: space-evenly;
   align-items: start;
   width: 100%;
+  min-height: 100vh;
+}
+
+@media screen and (min-width: 769px) {
+  .about-section {
+    position: absolute !important;
+    height: 100vh;
+    top: 0;
+    left: 0;
+  }
 }
 
 .about-container {
@@ -1040,13 +1121,11 @@ button {
 
 
 .about-image {
-  width: 60%;
+  width: 100%;
   max-width: 400px;
   aspect-ratio: 7 / 8;
   overflow: hidden;
   border-radius: 8px;
-  /* rotate: calc(-3deg - 2 * 0.25deg); */
-
 }
 
 .about-image img {
@@ -1058,13 +1137,21 @@ button {
 
 .section_footer {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  position: relative;
   will-change: background-color, transform;
+}
+
+@media screen and (min-width: 769px) {
+  .section_footer {
+    position: absolute !important;
+    height: 100vh;
+    top: 0;
+    left: 0;
+  }
 }
 
 
@@ -1184,7 +1271,7 @@ button {
   border-radius: 50%;
 }
 
-/* Responsive Design */
+
 @media screen and (max-width: 1024px) {
   .footer-top {
     gap: 3rem;
@@ -1280,7 +1367,7 @@ button {
 
 }
 
-/* ===== Counter Section ===== */
+
 .counter-section {
   display: flex;
   flex-direction: column;
@@ -1289,14 +1376,13 @@ button {
   height: 100vh;
 }
 
-/* Grid contenedor */
+
 .counter-wrap {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 1.5rem;
 }
 
-/* Card individual */
 .counter-single-item {
   background-color: #ffffff;
   padding: 1.75rem;
@@ -1308,14 +1394,13 @@ button {
   will-change: transform, opacity;
 }
 
-/* Contenido superior */
 .counter-content {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-/* Número decorativo (001, 002…) */
+
 .counter-item-number {
   font-size: 0.75rem;
   font-weight: 500;
@@ -1323,21 +1408,19 @@ button {
   color: #9a9a9a;
 }
 
-/* Título */
 .count-title {
   font-size: 0.95rem;
   font-weight: 500;
   color: #111111;
 }
 
-/* Bloque numérico */
 .counter-number-block {
   display: flex;
   align-items: baseline;
   gap: 0.25rem;
 }
 
-/* Número animado */
+
 .counterup {
   font-size: 2.25rem;
   font-weight: 700;
@@ -1345,7 +1428,7 @@ button {
   color: #111111;
 }
 
-/* Sufijo + */
+
 .counter-suffix {
   font-size: 1.5rem;
   font-weight: 600;
@@ -1353,7 +1436,7 @@ button {
   color: #111111;
 }
 
-/* ===== Responsive ===== */
+
 @media (max-width: 991px) {
   .counter-wrap {
     grid-template-columns: repeat(3, 1fr);
@@ -1472,3 +1555,4 @@ button {
 }
 
 
+ 

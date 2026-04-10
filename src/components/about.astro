@@ -3,7 +3,12 @@ import profileImage from "../assets/profile-image.png";
 import Title from "./title.astro";
 ---
 
-<section class="section about-section section-animation" id="about" data-speed="1">
+<section
+  class="section v-panel about-section"
+  id="about"
+  data-type="vertical"
+  data-id="v2"
+>
   <Title title="About" />
   <div class="about-container">
     <div class="about-left">
@@ -24,7 +29,96 @@ import Title from "./title.astro";
       </h2>
     </div>
   </div>
-  <!-- <div class="timeline">
-    <Marquee />
-  </div> -->
 </section>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const mm = gsap.matchMedia();
+
+  mm.add(
+    {
+      isDesktop: "(min-width: 769px)",
+      isMobile: "(max-width: 768px)",
+      reduceMotion: "(prefers-reduced-motion: reduce)",
+    },
+    (context) => {
+      const { isDesktop, reduceMotion } = context.conditions as {
+        isDesktop: boolean;
+        isMobile: boolean;
+        reduceMotion: boolean;
+      };
+
+      if (reduceMotion) {
+        gsap.set([".about-profile-image", ".about-heading"], {
+          opacity: 1,
+          clearProps: "all",
+        });
+        return;
+      }
+
+      // ── Main Timeline ──────────────────────────────────────────────────────
+      const tl = gsap.timeline({ paused: isDesktop });
+
+      // Image: slide in
+      tl.fromTo(
+        ".about-profile-image",
+        {
+          autoAlpha: 0,
+          x: isDesktop ? -60 : 0,
+          y: isDesktop ? 0 : 40,
+          scale: 0.95,
+        },
+        {
+          autoAlpha: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+          duration: 1,
+          ease: "power3.out",
+        }
+      );
+
+      // Heading: slide in
+      tl.fromTo(
+        ".about-heading",
+        {
+          autoAlpha: 0,
+          x: isDesktop ? 60 : 0,
+          y: isDesktop ? 0 : 30,
+        },
+        {
+          autoAlpha: 1,
+          x: 0,
+          y: 0,
+          duration: 1,
+          ease: "power3.out",
+        },
+        0.15
+      );
+
+      // ── Triggering ─────────────────────────────────────────────────────────
+      if (isDesktop) {
+        // Desktop: listen for section entry event
+        const onEnter = (e: any) => {
+          if (e.detail.id === "about") {
+            tl.restart();
+          }
+        };
+        window.addEventListener("section:entered", onEnter);
+        return () => window.removeEventListener("section:entered", onEnter);
+      } else {
+        // Mobile: use ScrollTrigger
+        ScrollTrigger.create({
+          trigger: ".about-section",
+          start: "top 75%",
+          animation: tl,
+          toggleActions: "play none none none",
+        });
+      }
+    }
+  );
+</script>

@@ -1,246 +1,223 @@
 ---
 import "../style/header.css";
 import video from "../assets/Prueba3.mp4";
-import Marquee from "./Marquee.astro";
 ---
 
-<section class="section home__section" id="home" data-speed="1">
+<section class="section v-panel home__section v-panel active" id="home" data-type="vertical" data-id="v1">
   <div class="home_intro">
-    <di class="container-medium">
+    <div class="container-medium">
       <div class="home_intro-grid">
         <div class="home_intro_content">
-          <h1 class="home-title" >FullStack<br />Developer</h1>
-          <p class="home-description" >
-            If you’re looking for a forward-thinking team of creatives to build
-            a brand identity that stands out from the crowd, then you’re exactly
+          <h1 class="home-title">FullStack<br />Developer</h1>
+          <p class="home-description">
+            If you're looking for a forward-thinking team of creatives to build
+            a brand identity that stands out from the crowd, then you're exactly
             where you need to be.
           </p>
           <p class="home-description">
-            If you’re looking for a forward-thinking team of creatives to build
-            a brand identity that stands out from the crowd, then you’re exactly
+            If you're looking for a forward-thinking team of creatives to build
+            a brand identity that stands out from the crowd, then you're exactly
             where you need to be.
           </p>
 
-          <a href="#" class="button button--stroke" data-block="button">
+          <a href="#contact" class="button button--stroke" data-block="button">
             <span class="button__flair"></span>
             <span class="button__label">Contact</span>
           </a>
         </div>
         <div class="home_intro_character">
           <div class="home_spline_roboto">
-            <video autoplay muted loop class="videoAnimation"  >
-              <source  src={video}  type="video/mp4" />
-              <source  src={video} type="video/webm" />
+            <video autoplay muted loop playsinline class="videoAnimation">
+              <source src={video} type="video/mp4" />
+              <source src={video} type="video/webm" />
             </video>
           </div>
         </div>
       </div>
-    </di>
+    </div>
   </div>
-  <!-- <div class="intro--options">
-    <Marquee />
-  </div> -->
 </section>
 
-
 <script>
-  import { SplitText } from "gsap/dist/SplitText";
-  import { gsap } from "gsap/dist/gsap";
-  gsap.registerPlugin(SplitText)
+  import { SplitText } from "gsap/SplitText";
+  import { gsap } from "gsap";
 
+  gsap.registerPlugin(SplitText);
 
+  // ── SplitText setup (must happen before any animation references split) ────
+  let split: InstanceType<typeof SplitText> | null = null;
 
-  let split: SplitText , animation: gsap.core.Tween;
-  const textAnimation = document.querySelectorAll(".home-description");
-  const videAnimation = document.querySelectorAll(".videoAnimation");
-  const buttonAnimation = document.querySelector(".button--stroke");
+  function setupSplit() {
+    if (split) split.revert();
+    split = new SplitText(".home-title", { type: "lines" });
+  }
+  setupSplit();
+  window.addEventListener("resize", setupSplit);
 
+  // ── Responsive animation system via gsap.matchMedia() ─────────────────────
+  const mm = gsap.matchMedia();
 
-  document.addEventListener("DOMContentLoaded", () =>{
+  function runIntroAnimations(delay = 0) {
+    if (!split) return;
 
-    //Animation title
-    animation && animation.revert();
-    animation = gsap.from(split.lines, {
-      delay:6.0,
-      rotationX: -90,
-      transformOrigin : "50% 50% ",
-      opacity: 0.9,
-      duration: 0.5,
-      ease:"rough.in",
-      stagger: 0.1
-    })
-
-
-//Animation description
-  gsap.set(textAnimation,{
-      opacity:0,
-      x:-10,
-      stagger: 0.1,
-        ease: "rough.out",
-    })
-
- gsap.to(textAnimation, {
-        duration: 0.9,
-        delay:6.0,
-        opacity: 1,
-        x: 10,
-        stagger: 0.1,
-        ease: "rough.in",
-      });
-      
-
-gsap.set(videAnimation, {
-  opacity: 0,
-  scale: 0.8,
-  rotationY: 15,
-  transformOrigin: "center center",
-  ease: "power2.out",
-});
-
-gsap.to(videAnimation, {
-  duration: 1.2,
-  delay: 6.0,
-  opacity: 1,
-  scale: 1,
-  rotationY: 0,
-  ease: "power3.out",
-  onStart: () => {
-    gsap.fromTo(videAnimation, 
+    mm.add(
       {
-        clipPath: "inset(10% 10% 10% 10% round 20px)"
+        isDesktop: "(min-width: 769px)",
+        isMobile: "(max-width: 768px)",
+        reduceMotion: "(prefers-reduced-motion: reduce)",
       },
-      {
-        clipPath: "inset(0% 0% 0% 0% round 0px)",
-        duration: 1.2,
-        ease: "power2.out"
+      (context) => {
+        const { reduceMotion } = context.conditions as {
+          isDesktop: boolean;
+          isMobile: boolean;
+          reduceMotion: boolean;
+        };
+
+        if (reduceMotion) {
+          // Sin animación: mostrar todo directamente
+          gsap.set([".home-title", ".home-description", ".button--stroke", ".videoAnimation"], {
+            opacity: 1,
+            clearProps: "all",
+          });
+          return;
+        }
+
+        const dur = { title: 0.6, text: 0.8, video: 1.2, btn: 0.7 };
+        const tl = gsap.timeline({ delay });
+
+        // Title lines
+        tl.from(
+          split!.lines,
+          {
+            rotationX: -90,
+            transformOrigin: "50% 50% -40px",
+            autoAlpha: 0,
+            duration: dur.title,
+            ease: "power3.out",
+            stagger: 0.12,
+          },
+          0
+        );
+
+        // Descriptions
+        tl.fromTo(
+          ".home-description",
+          { autoAlpha: 0, x: -20 },
+          {
+            autoAlpha: 1,
+            x: 0,
+            duration: dur.text,
+            ease: "power2.out",
+            stagger: 0.15,
+          },
+          0.25
+        );
+
+        // CTA button
+        tl.fromTo(
+          ".button--stroke",
+          { autoAlpha: 0, y: 12 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: dur.btn,
+            ease: "power2.out",
+          },
+          0.55
+        );
+
+        // Video — reveal with clipPath + scale
+        tl.fromTo(
+          ".videoAnimation",
+          {
+            autoAlpha: 0,
+            scale: 0.88,
+            clipPath: "inset(8% 8% 8% 8% round 16px)",
+          },
+          {
+            autoAlpha: 1,
+            scale: 1,
+            clipPath: "inset(0% 0% 0% 0% round 0px)",
+            duration: dur.video,
+            ease: "power3.out",
+          },
+          0.15
+        );
       }
     );
   }
-});
 
-//Animation button 
-    gsap.set(buttonAnimation, {
-      opacity:0,
-      x:-10,
-      stagger: 0.1,
-      ease: "rough.out",
-    });
+  // ── Trigger after preloader finishes (or immediately if already done) ──────
+  const PRELOADER_EVENT = "preloader:finish";
 
-    gsap.to(buttonAnimation,{
-      duration: 0.9,
-        delay:6.0,
-        opacity: 1,
-        x: 10,
-        stagger: 0.1,
-        ease: "rough.in",
-    })
-  });
-
-
-function setup() {
-  split && split.revert();
-  animation && animation.revert();
-  split = new SplitText(".home-title", {type:"lines"});
-}
-setup();
-
-window.addEventListener("resize", setup);
-
-
-
-
-class Button {
-  DOM: { flair: any; button: any; };
-  block: string | object | Element | null;
-  xSet: Function;
-  ySet: Function;
-
-  constructor(buttonElement: Element) {
-    this.block = buttonElement;
-    this.init();
-    this.initEvents();
-  }
-
-  init() {
-    const el = gsap.utils.selector(this.block);
-
-    this.DOM = {
-      button: this.block,
-      flair: el(".button__flair")
-    };
-
-    this.xSet = gsap.quickSetter(this.DOM.flair, "xPercent");
-    this.ySet = gsap.quickSetter(this.DOM.flair, "yPercent");
-  }
-
-  getXY(e: { clientX: number; clientY: number; }) {
-    const {
-      left,
-      top,
-      width,
-      height
-    } = this.DOM.button.getBoundingClientRect();
-
-    const xTransformer = gsap.utils.pipe(
-      gsap.utils.mapRange(0, width, 0, 100),
-      gsap.utils.clamp(0, 100)
+  if ((window as any).__preloaderDone) {
+    runIntroAnimations(0.1);
+  } else {
+    window.addEventListener(
+      PRELOADER_EVENT,
+      () => {
+        (window as any).__preloaderDone = true;
+        runIntroAnimations(0.1);
+      },
+      { once: true }
     );
-
-    const yTransformer = gsap.utils.pipe(
-      gsap.utils.mapRange(0, height, 0, 100),
-      gsap.utils.clamp(0, 100)
-    );
-
-    return {
-      x: xTransformer(e.clientX - left),
-      y: yTransformer(e.clientY - top)
-    };
   }
 
-  initEvents() {
-    this.DOM.button.addEventListener("mouseenter", (e: any) => {
-      const { x, y } = this.getXY(e);
+  // ── Magnetic button ────────────────────────────────────────────────────────
+  class MagneticButton {
+    private DOM: { button: Element; flair: Element };
+    private xSet: Function;
+    private ySet: Function;
 
-      this.xSet(x);
-      this.ySet(y);
+    constructor(buttonElement: Element) {
+      this.DOM = {
+        button: buttonElement,
+        flair: buttonElement.querySelector(".button__flair") as Element,
+      };
+      this.xSet = gsap.quickSetter(this.DOM.flair, "xPercent");
+      this.ySet = gsap.quickSetter(this.DOM.flair, "yPercent");
+      this.bindEvents();
+    }
 
-      gsap.to(this.DOM.flair, {
-        scale: 1,
-        duration: 0.4,
-        ease: "power2.out"
+    private getXY(e: MouseEvent) {
+      const { left, top, width, height } = this.DOM.button.getBoundingClientRect();
+      const xT = gsap.utils.pipe(
+        gsap.utils.mapRange(0, width, 0, 100),
+        gsap.utils.clamp(0, 100)
+      );
+      const yT = gsap.utils.pipe(
+        gsap.utils.mapRange(0, height, 0, 100),
+        gsap.utils.clamp(0, 100)
+      );
+      return { x: xT(e.clientX - left), y: yT(e.clientY - top) };
+    }
+
+    private bindEvents() {
+      this.DOM.button.addEventListener("mouseenter", (e) => {
+        const { x, y } = this.getXY(e as MouseEvent);
+        this.xSet(x);
+        this.ySet(y);
+        gsap.to(this.DOM.flair, { scale: 1, duration: 0.4, ease: "power2.out" });
       });
-    });
 
-    this.DOM.button.addEventListener("mouseleave", (e: any) => {
-      const { x, y } = this.getXY(e);
-
-      gsap.killTweensOf(this.DOM.flair);
-
-      gsap.to(this.DOM.flair, {
-        xPercent: x > 90 ? x + 20 : x < 10 ? x - 20 : x,
-        yPercent: y > 90 ? y + 20 : y < 10 ? y - 20 : y,
-        scale: 0,
-        duration: 0.3,
-        ease: "power2.out"
+      this.DOM.button.addEventListener("mouseleave", (e) => {
+        const { x, y } = this.getXY(e as MouseEvent);
+        gsap.killTweensOf(this.DOM.flair);
+        gsap.to(this.DOM.flair, {
+          xPercent: x > 90 ? x + 20 : x < 10 ? x - 20 : x,
+          yPercent: y > 90 ? y + 20 : y < 10 ? y - 20 : y,
+          scale: 0,
+          duration: 0.3,
+          ease: "power2.out",
+        });
       });
-    });
 
-    this.DOM.button.addEventListener("mousemove", (e: any) => {
-      const { x, y } = this.getXY(e);
-
-      gsap.to(this.DOM.flair, {
-        xPercent: x,
-        yPercent: y,
-        duration: 0.4,
-        ease: "power2"
+      this.DOM.button.addEventListener("mousemove", (e) => {
+        const { x, y } = this.getXY(e as MouseEvent);
+        gsap.to(this.DOM.flair, { xPercent: x, yPercent: y, duration: 0.4, ease: "power2.out" });
       });
-    });
+    }
   }
-}
 
-const buttonElements = document.querySelectorAll('[data-block="button"]');
-
-buttonElements.forEach((buttonElement) => {
-  new Button(buttonElement);
-});
+  document.querySelectorAll('[data-block="button"]').forEach((el) => new MagneticButton(el));
 </script>

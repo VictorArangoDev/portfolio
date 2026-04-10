@@ -41,7 +41,7 @@ const { title } = Astro.props;
   position: absolute;
   height: 57%;
   z-index: 2;
-  background-color: #000; /* gray-300 */
+  background-color: #000;
   display: flex;
   align-items: flex-end;
   left: 0;
@@ -56,7 +56,7 @@ const { title } = Astro.props;
 .bottom-section {
   position: absolute;
   height: 44%;
-  background-color: #000; /* gray-300 */
+  background-color: #000;
   left: 0;
   right: 0;
   bottom: 0;
@@ -70,7 +70,6 @@ const { title } = Astro.props;
 /* Logo container */
 .logo-container {
   text-align: center;
-  opacity: 0;
   width: 100%;
   position: relative;
   opacity: 1;
@@ -151,7 +150,7 @@ const { title } = Astro.props;
 }
 	</style>
 	<body>
-		<div 
+		<div
 			id="preloader"
 			class="preloader-container"
       style="background-color: #fff;"
@@ -161,24 +160,24 @@ const { title } = Astro.props;
 				<div id="logoContainer" class="logo-container">
 					<div class="logos-wrapper">
 						<div class="logos-inner">
-						
+
 							<div id="logoLeft" class="logo-left">
 							  <span class="text-logo-preload">va</span>
 							</div>
 
-							
+
 							<div id="logoCenter" class="logo-center">
 								 <span class="text-logo-preload"> /</span>
 							</div>
 
-							
+
 							<div id="logoRight" class="logo-right">
 							  <span class="text-logo-preload">dev</span>
 							</div>
 						</div>
 					</div>
 
-					
+
 					<div id="progressContainer" class="progress-container">
 						<div class="progress-track"></div>
 						<div id="progressBar" class="progress-bar"></div>
@@ -186,170 +185,69 @@ const { title } = Astro.props;
 				</div>
 			</span>
 
-			
+
 			<span id="bottomSection" class="bottom-section">
 				<div id="percentageContainer" class="percentage-container">
 					<div>(<span id="percentageText">100%</span>)</div>
 				</div>
 			</span>
 		</div>
-
 		<BlobAnimation client:only/>
 		<Header/>
-		<main class="main " id="smooth-wrapper" >
-			<div id="smooth-content">
-			<script>
-				// En móvil necesitamos que el scrollerProxy de ScrollTrigger exista
-				// ANTES de que otros componentes creen sus triggers/animaciones.
-				import { gsap } from "gsap";
-				import ScrollTrigger from "gsap/dist/ScrollTrigger";
-
-				gsap.registerPlugin(ScrollTrigger);
-
-				const IS_TOUCH =
-					window.matchMedia("(pointer: coarse)").matches &&
-					window.matchMedia("(hover: none)").matches;
-				if (IS_TOUCH) {
-					const html = document.documentElement;
-					const wrapper = document.getElementById("smooth-wrapper");
-					const content = document.getElementById("smooth-content");
-					if (content) {
-						const w = window as any;
-						w.__portfolioScrollState = w.__portfolioScrollState || {
-							virtualY: 0,
-							scrollerProxyReady: false,
-						};
-						const state = w.__portfolioScrollState;
-
-						state.notify = () => ScrollTrigger.update();
-
-						// Lock del scroll nativo (GSAP se encarga con transform/translate).
-						html.style.overflow = "hidden";
-						html.style.height = "100%";
-						document.body.style.overflow = "hidden";
-						document.body.style.height = "100%";
-
-						if (wrapper) wrapper.style.cssText = "position:fixed;inset:0;overflow:hidden;";
-						content.style.cssText = "position:relative;will-change:transform;";
-
-						if (!state.scrollerProxyReady) {
-							ScrollTrigger.scrollerProxy(content, {
-								scrollTop(value) {
-									if (value !== undefined) {
-										state.virtualY = value;
-										gsap.set(content, { y: -value });
-										state.notify?.();
-									}
-									return state.virtualY;
-								},
-								getBoundingClientRect() {
-									return {
-										top: 0,
-										left: 0,
-										width: window.innerWidth,
-										height: window.innerHeight,
-									};
-								},
-								pinType: "transform",
-							});
-
-							ScrollTrigger.defaults({ scroller: content });
-							state.scrollerProxyReady = true;
-						}
-
-						gsap.set(content, { y: -state.virtualY });
-						state.notify?.();
-					}
-				}
-			</script>
+		<main class="main main-viewport" id="main-viewport">
+			<div class="sections-wrapper" id="sections-wrapper">
 				<slot />
 			</div>
 		</main>
 	</body>
+
+	<!-- ── PRELOADER ──────────────────────────────────────────────────────────── -->
 	<script>
 		import { gsap } from "gsap/dist/gsap";
 		import ScrollTrigger from "gsap/dist/ScrollTrigger";
 
 		gsap.registerPlugin(ScrollTrigger);
 
-		// refs
-		const container = document.getElementById("preloader");
-		const leftLogo = document.getElementById("logoLeft");
-		const rightLogo = document.getElementById("logoRight");
-		const centerLogo = document.getElementById("logoCenter");
-		const progressBar = document.getElementById("progressBar");
-		const percentageText = document.getElementById("percentageText");
-		const topSection = document.getElementById("topSection");
-		const bottomSection = document.getElementById("bottomSection");
-		const logoContainer = document.getElementById("logoContainer");
-		const progressContainer = document.getElementById("progressContainer");
+		const container          = document.getElementById("preloader");
+		const leftLogo           = document.getElementById("logoLeft");
+		const rightLogo          = document.getElementById("logoRight");
+		const centerLogo         = document.getElementById("logoCenter");
+		const progressBar        = document.getElementById("progressBar");
+		const percentageText     = document.getElementById("percentageText");
+		const topSection         = document.getElementById("topSection");
+		const bottomSection      = document.getElementById("bottomSection");
+		const logoContainer      = document.getElementById("logoContainer");
+		const progressContainer  = document.getElementById("progressContainer");
 		const percentageContainer = document.getElementById("percentageContainer");
 
-		const animationConfig = {
-			showAnimation: { duration: 0.8, ease: "power3.inOut" },
-			revealIntro: { duration: 2, ease: "expo.inOut" },
-			hideAnimation: { duration: 0.5, ease: "expo.inOut" }
+		const cfg = {
+			show:   { duration: 0.8, ease: "power3.inOut" },
+			reveal: { duration: 2,   ease: "expo.inOut"   },
+			hide:   { duration: 0.5, ease: "expo.inOut"   },
 		};
 
 		function start() {
-			// Los elementos ya tienen opacity: 1 desde el CSS, pero mantenemos la animación inicial
 			gsap.to([logoContainer, progressContainer, percentageContainer], {
-				opacity: 1,
-				duration: animationConfig.showAnimation.duration,
-				ease: animationConfig.showAnimation.ease,
-				delay: 0.2
+				opacity: 1, duration: cfg.show.duration, ease: cfg.show.ease, delay: 0.2
 			});
 
-			const progress = { value: 0 };
-
-			gsap.to(progress, {
-				value: 100,
-				duration: 2,
-				delay: 0.5,
-				ease: "power2.out",
+			const prog = { value: 0 };
+			gsap.to(prog, {
+				value: 100, duration: 2, delay: 0.5, ease: "power2.out",
 				onUpdate: () => {
-					const v = progress.value / 100;
-					gsap.set(progressBar, { scaleX: v });
-
-					if (percentageText) {
-						percentageText.textContent = `${Math.round(progress.value)}%`;
-					}
+					gsap.set(progressBar, { scaleX: prog.value / 100 });
+					if (percentageText) percentageText.textContent = `${Math.round(prog.value)}%`;
 				},
-				onComplete: introAnimation
+				onComplete: introAnimation,
 			});
 		}
 
 		function introAnimation() {
 			gsap.delayedCall(0.3, () => {
-				const tl = gsap.timeline({
-					onComplete: () => { gsap.delayedCall(0.5, exitAnimation); }
-				});
-
-				tl.to(leftLogo, {
-					x: -500,
-					duration: animationConfig.revealIntro.duration,
-					ease: animationConfig.revealIntro.ease
-				});
-
-				tl.to(
-					rightLogo,
-					{
-						x: 500,
-						duration: animationConfig.revealIntro.duration,
-						ease: animationConfig.revealIntro.ease
-					},
-					0
-				);
-
-				tl.to(
-					centerLogo,
-					{
-						opacity: 0,
-						duration: animationConfig.revealIntro.duration * 0.5,
-						ease: "power2.out"
-					},
-					animationConfig.revealIntro.duration * 0.5
-				);
+				const tl = gsap.timeline({ onComplete: () => gsap.delayedCall(0.5, exitAnimation) });
+				tl.to(leftLogo,   { x: -500, duration: cfg.reveal.duration, ease: cfg.reveal.ease });
+				tl.to(rightLogo,  { x:  500, duration: cfg.reveal.duration, ease: cfg.reveal.ease }, 0);
+				tl.to(centerLogo, { opacity: 0, duration: cfg.reveal.duration * 0.5, ease: "power2.out" }, cfg.reveal.duration * 0.5);
 			});
 		}
 
@@ -357,395 +255,206 @@ const { title } = Astro.props;
 			const tl = gsap.timeline({
 				onComplete: () => {
 					gsap.set(container, { autoAlpha: 0 });
-
-					// Evento personalizado equivalente a onFinish()
+					(window as any).__preloaderDone = true;
 					window.dispatchEvent(new Event("preloader:finish"));
 				}
 			});
-
-			tl.to(topSection, {
-				clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
-				duration: animationConfig.hideAnimation.duration,
-				ease: animationConfig.hideAnimation.ease
-			});
-
-			tl.to(
-				bottomSection,
-				{
-					clipPath: "polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)",
-					duration: animationConfig.hideAnimation.duration,
-					ease: animationConfig.hideAnimation.ease
-				},
-				0
-			);
-
-			tl.to(container, { opacity: 0, duration: 0.5 });
+			tl.to(topSection,    { clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",             duration: cfg.hide.duration, ease: cfg.hide.ease });
+			tl.to(bottomSection, { clipPath: "polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)",      duration: cfg.hide.duration, ease: cfg.hide.ease }, 0);
+			tl.to(container,     { opacity: 0, duration: 0.5 });
 		}
 
 		start();
 	</script>
-<script>
-    import { gsap }       from "gsap";
-  import ScrollTrigger  from "gsap/dist/ScrollTrigger";
-  import ScrollSmoother from "gsap/dist/ScrollSmoother";
-  import ScrollToPlugin from "gsap/dist/ScrollToPlugin";
- 
-  declare global {
-    interface Window { __projectsSectionActive?: boolean; }
-  }
- 
-  gsap.registerPlugin(ScrollTrigger, ScrollSmoother, ScrollToPlugin);
- 
-  // ── Helpers ──────────────────────────────────────────────────────────────
-  const IS_TOUCH =
-    window.matchMedia("(pointer: coarse)").matches &&
-    window.matchMedia("(hover: none)").matches;
- 
-  const sections    = gsap.utils.toArray<HTMLElement>(".section");
-  const N           = sections.length;
-  if (N === 0) throw new Error("No .section elements found");
- 
-  const projectsEl  = document.querySelector<HTMLElement>(".swipe-section");
-  const projectsIdx = projectsEl ? sections.indexOf(projectsEl) : -1;
- 
-  // Carousel API — populated once Projects.astro runs its script
-  const carousel = () => (projectsEl as any)?._carousel as
-    { next: () => boolean; prev: () => boolean; reset: (fromEnd?: boolean) => void } | undefined;
- 
-  let sectionIdx = 0;
-  let snapping   = false;
-  const DUR      = 0.55;
-  const EASE     = "power3.inOut";
- 
-  // ─────────────────────────────────────────────────────────────────────────
-  //  DESKTOP
-  // ─────────────────────────────────────────────────────────────────────────
-  if (!IS_TOUCH) {
- 
-    const scroller = ScrollSmoother.create({
-      wrapper: "#smooth-wrapper",
-      content: "#smooth-content",
-      smooth: 1,
-      effects: true,
-      smoothTouch: false,
-    });
- 
-    function goTo(i: number) {
-      if (i < 0 || i >= N || snapping) return;
-      snapping = true;
-      sectionIdx = i;
- 
-      // Tell carousel which direction we're entering from
-      if (i === projectsIdx) {
-        // arriving from above → start at first panel; below → last panel
-        const fromEnd = sectionIdx > i; // will always be false here, kept for clarity
-        carousel()?.reset(false);
-        window.__projectsSectionActive = true;
-      } else {
-        window.__projectsSectionActive = false;
-      }
- 
-      scroller.scrollTo(sections[i], true);
-      gsap.delayedCall(DUR + 0.15, () => { snapping = false; });
-    }
- 
-    // Projects pin — keeps it in viewport while carousel animates
-    if (projectsEl) {
-      ScrollTrigger.create({
-        trigger: projectsEl,
-        start: "top top",
-        end: "+=1",
-        pin: true,
-        anticipatePin: 1,
-        onEnter:     () => { window.__projectsSectionActive = true;  carousel()?.reset(false); },
-        onEnterBack: () => { window.__projectsSectionActive = true;  carousel()?.reset(true);  },
-        onLeave:     () => { window.__projectsSectionActive = false; },
-        onLeaveBack: () => { window.__projectsSectionActive = false; },
-      });
-    }
- 
-    // Wheel
-    ScrollTrigger.observe({
-      target: document.body,
-      type: "wheel",
-      preventDefault: true,
-      tolerance: 15,
-      onDown: () => {
-        if (snapping) return;
-        if (window.__projectsSectionActive) {
-          // Try to advance carousel; if at boundary, move to next section
-          const consumed = carousel()?.next() ?? false;
-          if (!consumed) goTo(sectionIdx + 1);
-        } else {
-          goTo(sectionIdx + 1);
-        }
-      },
-      onUp: () => {
-        if (snapping) return;
-        if (window.__projectsSectionActive) {
-          const consumed = carousel()?.prev() ?? false;
-          if (!consumed) goTo(sectionIdx - 1);
-        } else {
-          goTo(sectionIdx - 1);
-        }
-      },
-    });
- 
-    // Keyboard
-    document.addEventListener("keydown", (e) => {
-      if (!["Space","PageDown","PageUp","ArrowDown","ArrowUp"].includes(e.code)) return;
-      // ArrowLeft/Right handled inside Projects.astro for carousel
-      if (window.__projectsSectionActive && ["ArrowDown","ArrowUp"].includes(e.code)) return;
-      e.preventDefault();
-      if (snapping) return;
-      const down = ["Space","PageDown","ArrowDown"].includes(e.code);
-      down ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
-    }, { passive: false });
- 
-    // carousel:boundary — fired by keyboard handler inside Projects.astro
-    projectsEl?.addEventListener("carousel:boundary", ((e: CustomEvent) => {
-      e.detail.dir === "next" ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
-    }) as EventListener);
- 
-    // Init
-    ScrollTrigger.refresh();
-    scroller.scrollTo(sections[0], false);
-    window.addEventListener("scrollToNextSection", () => goTo(sectionIdx + 1));
-    window.addEventListener("scrollToPrevSection", () => goTo(sectionIdx - 1));
- 
-  // ─────────────────────────────────────────────────────────────────────────
-  //  MOBILE  —  no ScrollSmoother, no native scroll, GSAP owns all movement
-  // ─────────────────────────────────────────────────────────────────────────
-  } else {
- 
-    // ── Kill native scroll completely ─────────────────────────────────────
-    // Native scroll and GSAP scrollTo compete on iOS/Android producing jitter.
-    // Solution: lock the viewport, translate the content manually with GSAP.
-    // This is the same model ScrollSmoother uses on desktop — we just do it
-    // ourselves without the smoothing overhead.
-    const html    = document.documentElement;
-    const wrapper = document.getElementById("smooth-wrapper");
-    const content = document.getElementById("smooth-content");
- 
-    html.style.overflow    = "hidden";
-    html.style.height      = "100%";
-    document.body.style.overflow = "hidden";
-    document.body.style.height   = "100%";
- 
-    if (wrapper) {
-      wrapper.style.cssText = "position:fixed;inset:0;overflow:hidden;";
-    }
-    if (content) {
-      content.style.cssText = "position:relative;will-change:transform;";
-    }
- 
-    // Force every section to exactly 100dvh
-    const VH = window.innerHeight;
-    sections.forEach(s => {
-      s.style.height    = `${VH}px`;
-      s.style.minHeight = `${VH}px`;
-      s.style.overflow  = "hidden";
-    });
- 
-		// ── Virtual scroll position (shared state) ─────────────────────────────
-		// El scrollerProxy y el default scroller ya se configuraron en un script
-		// anterior (antes de que otros componentes creen sus ScrollTriggers).
-		const w = window as any;
-		if (!w.__portfolioScrollState) {
-			w.__portfolioScrollState = {
-				virtualY: 0,
-				scrollerProxyReady: false,
-			};
-		}
-		const scrollState = w.__portfolioScrollState as {
-			virtualY: number;
-			scrollerProxyReady: boolean;
-			notify?: () => void;
-		};
 
-		// Si el script temprano no corrió a tiempo, inicializamos el proxy aquí
-		// para no romper el "snap" ni el resto de animaciones.
-		if (!scrollState.notify) {
-			scrollState.notify = () => ScrollTrigger.update();
-		}
+	<!-- ── SCROLL SYSTEM ──────────────────────────────────────────────────────── -->
+	<script>
+	import { gsap } from "gsap";
+	import { Observer } from "gsap/Observer";
+	import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-		if (!scrollState.scrollerProxyReady) {
-			ScrollTrigger.scrollerProxy(content as HTMLElement, {
-				scrollTop(value?: number) {
-					if (value !== undefined) {
-						scrollState.virtualY = value;
-						gsap.set(content as HTMLElement, { y: -value });
-						scrollState.notify?.();
-					}
-					return scrollState.virtualY;
+	gsap.registerPlugin(Observer, ScrollTrigger);
+
+	const DESKTOP_MQ = "(min-width: 769px)";
+	const REDUCE_MQ  = "(prefers-reduced-motion: reduce)";
+
+	function initScrollSystem() {
+		// ── Teardown instancia anterior ─────────────────────────────────────────
+		const prev = (window as any).__scrollTeardown as (() => void) | undefined;
+		if (prev) prev();
+
+		const sections = gsap.utils.toArray<HTMLElement>(".section");
+		if (!sections.length) return;
+
+		let currentIndex = 0;
+		let isAnimating  = false;
+
+		// ── GSAP es la única fuente de verdad para visibilidad ──────────────────
+		// Quitamos clase .active para que el CSS visibility:hidden no interfiera
+		sections.forEach((s, i) => {
+			s.classList.remove("active");
+			gsap.set(s, i === 0
+				? { autoAlpha: 1, yPercent: 0,   zIndex: 1 }
+				: { autoAlpha: 0, yPercent: 100, zIndex: 0 }
+			);
+		});
+
+		// ── Detección de breakpoint ─────────────────────────────────────────────
+		const mqlDesktop = window.matchMedia(DESKTOP_MQ);
+		const mqlReduce  = window.matchMedia(REDUCE_MQ);
+		const isDesktop    = () => mqlDesktop.matches;
+		const reduceMotion = () => mqlReduce.matches;
+
+		// ── Transición vertical entre secciones ─────────────────────────────────
+		const animateSection = (nextIndex: number, direction: number) => {
+			if (isAnimating) return;
+			if (nextIndex === currentIndex) return;
+			if (nextIndex < 0 || nextIndex >= sections.length) return;
+
+			isAnimating = true;
+
+			const cur       = sections[currentIndex];
+			const next      = sections[nextIndex];
+			const dur       = reduceMotion() ? 0 : 1.0;
+			const prevIndex = currentIndex;
+
+			gsap.set(next, { yPercent: direction > 0 ? 100 : -100, autoAlpha: 0, zIndex: 2 });
+			gsap.set(cur,  { zIndex: 1 });
+
+			currentIndex = nextIndex;
+
+			const tl = gsap.timeline({
+				onStart: () => {
+					window.dispatchEvent(new CustomEvent("section:leaving", { detail: { id: cur.id } }));
 				},
-				getBoundingClientRect() {
-					return {
-						top: 0,
-						left: 0,
-						width: window.innerWidth,
-						height: window.innerHeight,
-					};
+				onComplete: () => {
+					gsap.set(cur, { autoAlpha: 0, zIndex: 0 });
+					isAnimating = false;
+					window.dispatchEvent(new CustomEvent("section:entered", { detail: { id: next.id } }));
 				},
-				pinType: "transform",
+				onInterrupt: () => {
+					isAnimating  = false;
+					currentIndex = prevIndex;
+				},
 			});
 
-			ScrollTrigger.defaults({ scroller: content as HTMLElement });
-			scrollState.scrollerProxyReady = true;
+			tl.to(cur,  { yPercent: direction > 0 ? -100 : 100, autoAlpha: 0, duration: dur, ease: "power3.inOut" }, 0);
+			tl.to(next, { yPercent: 0, autoAlpha: 1,             duration: dur, ease: "power3.inOut" }, 0);
+		};
+
+		// ── Navegar ─────────────────────────────────────────────────────────────
+		const navigate = (direction: number) => {
+			if (isAnimating) return;
+			const current = sections[currentIndex];
+
+			// Sección horizontal: delegar paneles a projects.astro
+			if (current.dataset.type === "horizontal" && isDesktop()) {
+				const goToPanel  = (window as any).__projectsGoToPanel   as ((i: number) => void) | undefined;
+				const panelCount = (window as any).__projectsPanelCount  as number | undefined;
+				const getCurrent = (window as any).__projectsCurrentPanel as (() => number) | undefined;
+				if (goToPanel && panelCount !== undefined && getCurrent) {
+					const ci = getCurrent();
+					if (direction > 0 && ci < panelCount - 1) { goToPanel(ci + 1); return; }
+					if (direction < 0 && ci > 0)              { goToPanel(ci - 1); return; }
+				}
+			}
+
+			animateSection(currentIndex + direction, direction);
+		};
+
+		// ── Hash navigation ─────────────────────────────────────────────────────
+		const findByHash = (hash: string) => {
+			const id = hash.replace(/^#/, "");
+			if (!id) return -1;
+			return sections.findIndex((s) => s.id === id);
+		};
+
+		const goToHash = (hash: string) => {
+			const idx = findByHash(hash);
+			if (idx < 0) return;
+			
+			if (isDesktop() && !reduceMotion()) {
+				if (idx === currentIndex) return;
+				animateSection(idx, idx > currentIndex ? 1 : -1);
+			} else {
+				const section = sections[idx];
+				if (section) section.scrollIntoView({ behavior: "smooth" });
+			}
+		};
+
+		const onDocumentClick = (e: MouseEvent) => {
+			const a = (e.target as HTMLElement)?.closest<HTMLAnchorElement>('a[href^="#"]');
+			if (!a) return;
+			const href = a.getAttribute("href") ?? "";
+			if (href === "#" || href === "#!") {
+				e.preventDefault();
+				history.replaceState(null, "", "#home");
+				goToHash("#home");
+				return;
+			}
+			if (findByHash(href) >= 0) {
+				e.preventDefault();
+				history.replaceState(null, "", href);
+				goToHash(href);
+			}
+		};
+		document.addEventListener("click", onDocumentClick, true);
+
+		// ── Observer — desktop + sin reduced-motion ─────────────────────────────
+		Observer.getAll().forEach((o) => o.kill());
+		let observer: ReturnType<typeof Observer.create> | null = null;
+
+		if (isDesktop() && !reduceMotion()) {
+			observer = Observer.create({
+				type: "wheel,touch,pointer",
+				wheelSpeed: -1,
+				onUp:   () => navigate(1),
+				onDown: () => navigate(-1),
+				tolerance: 10,
+				preventDefault: true,
+			});
+		} else {
+			// Mobile / reduced-motion: scroll nativo, mostrar todo
+			sections.forEach((s) => {
+				gsap.set(s, { position: "relative", autoAlpha: 1, yPercent: 0, zIndex: "auto", visibility: "visible" });
+			});
 		}
 
-		function sectionY(i: number) { return i * VH; }
+		// ── Resize ─────────────────────────────────────────────────────────────
+		let resizeTimer: ReturnType<typeof setTimeout>;
+		const handleResize = () => {
+			clearTimeout(resizeTimer);
+			resizeTimer = setTimeout(() => {
+				ScrollTrigger.refresh();
+				const wasDesktop = !!observer;
+				const nowDesktop = isDesktop() && !reduceMotion();
+				if (wasDesktop !== nowDesktop) initScrollSystem();
+			}, 200);
+		};
+		window.addEventListener("resize", handleResize);
 
-		function updateY(y: number) {
-			scrollState.virtualY = y;
-			if (content) gsap.set(content, { y: -y });
-			scrollState.notify?.();
+		// ── Teardown ────────────────────────────────────────────────────────────
+		const teardown = () => {
+			observer?.kill();
+			Observer.getAll().forEach((o) => o.kill());
+			clearTimeout(resizeTimer);
+			window.removeEventListener("resize", handleResize);
+			document.removeEventListener("click", onDocumentClick, true);
+			(window as any).__scrollTeardown = undefined;
+		};
+		(window as any).__scrollTeardown = teardown;
+
+		// ── Hash inicial post-preloader ─────────────────────────────────────────
+		const initialHash = window.location.hash;
+		if (initialHash && findByHash(initialHash) >= 0) {
+			const run = () => goToHash(initialHash);
+			window.addEventListener("preloader:finish", run, { once: true });
+			setTimeout(run, 100);
 		}
- 
-    function snapTo(i: number, animate: boolean) {
-      const target = sectionY(i);
-      gsap.killTweensOf(content);
- 
-      if (animate) {
-        gsap.to(content, {
-          y: -target,
-          duration: DUR,
-          ease: EASE,
-          overwrite: "auto",
-          onUpdate: () => {
-            // Keep virtualY in sync during tween so ScrollTrigger
-            // sees intermediate positions as the snap animates
-            if (content) {
-              const m = new DOMMatrix(getComputedStyle(content).transform);
-						scrollState.virtualY = -m.m42;
-						scrollState.notify?.();
-            }
-          },
-          onComplete: () => {
-					scrollState.virtualY = target;
-					scrollState.notify?.();
-            snapping = false;
-          },
-        });
-      } else {
-        updateY(target);
-        snapping = false;
-      }
-    }
- 
-    function goTo(i: number) {
-      if (i < 0 || i >= N || snapping) return;
-      snapping   = true;
-      sectionIdx = i;
-      window.__projectsSectionActive = (i === projectsIdx);
-      if (i === projectsIdx) carousel()?.reset(false);
-      snapTo(i, true);
-    }
- 
-    // carousel:boundary fired by Projects keyboard handler
-    projectsEl?.addEventListener("carousel:boundary", ((e: CustomEvent) => {
-      e.detail.dir === "next" ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
-    }) as EventListener);
- 
-    // ── Touch ─────────────────────────────────────────────────────────────
-    const sess = {
-      y0: 0, x0: 0,
-      locked: false,
-      intent: null as "v" | "h" | null,
-    };
-    const I_PX = 10;
-    const S_PX = 48;
- 
-    // All touch listeners on document, passive:false so we can always
-    // preventDefault — native scroll is already off so this is just a safeguard.
-    document.addEventListener("touchstart", (e) => {
-      // Let a new gesture interrupt an in-progress snap
-      if (snapping) {
-        gsap.killTweensOf(content);
-        // Sync virtualY with wherever the animation stopped mid-tween
-        if (content) {
-          const m = new DOMMatrix(getComputedStyle(content).transform);
-					scrollState.virtualY = -m.m42;
-					scrollState.notify?.();
-        }
-        snapping = false;
-      }
-      sess.y0     = e.touches[0].clientY;
-      sess.x0     = e.touches[0].clientX;
-      sess.locked = false;
-      sess.intent = null;
-    }, { passive: false });
- 
-    document.addEventListener("touchmove", (e) => {
-      e.preventDefault(); // always block — native scroll is disabled
- 
-      if (sess.locked) return;
-      const dy = Math.abs(e.touches[0].clientY - sess.y0);
-      const dx = Math.abs(e.touches[0].clientX - sess.x0);
-      if (dy < I_PX && dx < I_PX) return;
- 
-      sess.intent = dy >= dx ? "v" : "h";
-      sess.locked = true;
-    }, { passive: false });
- 
-    document.addEventListener("touchend", (e) => {
-      if (!sess.locked) return;
- 
-      const dx = sess.x0 - e.changedTouches[0].clientX;
-      const dy = sess.y0 - e.changedTouches[0].clientY;
- 
-      if (sess.intent === "h") {
-        // ── Horizontal → carousel (only inside projects) ──────────────────
-        if (!window.__projectsSectionActive || Math.abs(dx) < S_PX) return;
-        const consumed = dx > 0
-          ? (carousel()?.next() ?? false)
-          : (carousel()?.prev() ?? false);
-        if (!consumed) dx > 0 ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
- 
-      } else if (sess.intent === "v") {
-        // ── Vertical → section snap (carousel first if on projects) ───────
-        if (Math.abs(dy) < S_PX) return;
-        const goingDown = dy > 0;
-        if (window.__projectsSectionActive) {
-          const consumed = goingDown
-            ? (carousel()?.next() ?? false)
-            : (carousel()?.prev() ?? false);
-          if (!consumed) goingDown ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
-        } else {
-          goingDown ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
-        }
-      }
-    }, { passive: true });
+	}
 
-    // ── Wheel fallback (cuando el dispositivo entra como "touch" por error) ──
-    // Si el usuario intenta hacer scroll con rueda/trackpad, forzamos el snap.
-    document.addEventListener(
-      "wheel",
-      (e) => {
-        if (snapping) return;
-        // Evitar ruido (trackpads pequeños)
-        if (Math.abs(e.deltaY) < 10) return;
-        e.preventDefault();
+	document.addEventListener("DOMContentLoaded", initScrollSystem);
+	document.addEventListener("astro:page-load",   initScrollSystem);
+	</script>
 
-        const goingDown = e.deltaY > 0;
-        if (window.__projectsSectionActive) {
-          const consumed = goingDown ? (carousel()?.next() ?? false) : (carousel()?.prev() ?? false);
-          if (!consumed) goingDown ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
-        } else {
-          goingDown ? goTo(sectionIdx + 1) : goTo(sectionIdx - 1);
-        }
-      },
-      { passive: false }
-    );
- 
-		// ── Init ──────────────────────────────────────────────────────────────
-		// Primero sincronizamos la posición virtual y luego forzamos refresh
-		// para que las animaciones iniciales dependientes de ScrollTrigger
-		// se ejecuten correctamente.
-		snapTo(0, false);
-		ScrollTrigger.refresh();
-    window.addEventListener("scrollToNextSection", () => goTo(sectionIdx + 1));
-    window.addEventListener("scrollToPrevSection", () => goTo(sectionIdx - 1));
-  }
-</script>
 </html>

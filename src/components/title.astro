@@ -16,44 +16,58 @@ const { title } =  Astro.props;
 
 <script>
   import { gsap } from "gsap";
-  import ScrollTrigger from "gsap/dist/ScrollTrigger";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
   gsap.registerPlugin(ScrollTrigger);
 
-  gsap.utils.toArray(".section-animation").forEach((section) => {
-    const label = (section as Element).querySelector(".about-label");
-    const lines = (section as Element).querySelectorAll(".line");
+  const DESKTOP_MQ = "(min-width: 769px)";
+  const isDesktop = () => window.matchMedia(DESKTOP_MQ).matches;
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: section as Element,
-        start: "top 60%",
-        end: "bottom 40%",
-        toggleActions: "play reverse play reverse",
+  function animateTitle(parentSection: HTMLElement) {
+    const label = parentSection.querySelector<HTMLElement>(".about-label");
+    const line  = parentSection.querySelectorAll<HTMLElement>(".line");
+    
+    if (!label) return;
+
+    const tl = gsap.timeline();
+    tl.to(label, {
+      y: 0,
+      opacity: 1,
+      duration: 0.8,
+      ease: "power2.out"
+    })
+    .to(line, {
+      width: "400px",
+      duration: 1,
+      stagger: 0.1,
+      ease: "power3.out"
+    }, "-=0.4");
+  }
+
+  // ── Desktop: use event listener ───────────────────────────────────────────
+  const onEnter = (e: any) => {
+    if (!isDesktop()) return;
+    const section = document.getElementById(e.detail.id);
+    if (section) animateTitle(section);
+  };
+  window.addEventListener("section:entered", onEnter);
+
+  // ── Mobile/Native Scroll: use ScrollTrigger ───────────────────────────────
+  const sections = document.querySelectorAll(".section");
+  sections.forEach((section) => {
+    ScrollTrigger.create({
+      trigger: section,
+      start: "top 85%",
+      once: true,
+      onEnter: () => {
+        if (!isDesktop()) animateTitle(section as HTMLElement);
       },
     });
+  });
 
-    tl.fromTo(
-      label,
-      {
-        y: 80,
-        opacity: 0,
-      },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.6,
-        ease: "power2.out",
-      }
-    )
-    .fromTo(
-      lines,
-      {
-      width: 0,
-    },
-    {
-      width: "400px",
-    },
-      "-=0.15"
-    );
+  // Initial call for the home section (first load)
+  window.addEventListener("preloader:finish", () => {
+    const home = document.getElementById("home");
+    if (home) animateTitle(home);
   });
 </script>

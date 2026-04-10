@@ -1,209 +1,232 @@
 ---
 ---
 
-    <footer class="section footer section_footer">
-        <div class="footer-container">
-            <div class="footer-top">
-                <div class="footer-cta">
-                    <h2 class="footer-heading">
-                      
-                        Transforming ideas into exceptional
-                        <span class="italic effect">d</span>
-                        <span class="italic effect">i</span>
-                        <span class="italic effect">g</span>
-                        <span class="italic effect">i</span>
-                        <span class="italic effect">t</span>
-                        <span class="italic effect">a</span>
-                        <span class="italic effect">l</span>
-                        <br>
-                         experiences through expertise and innovation
-                    </h2>
-                    <button class="cta-button">
-                        Contact
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 8H15M15 8L8 1M15 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </div>
+<footer
+  class="section f-panel footer section_footer"
+  id="contact"
+  data-type="vertical"
+  data-id="footer"
+>
+  <div class="footer-container">
+    <div class="footer-top">
+      <div class="footer-cta">
+        <h2 class="footer-heading">
+          Transforming ideas into exceptional
+          <span class="italic effect">d</span>
+          <span class="italic effect">i</span>
+          <span class="italic effect">g</span>
+          <span class="italic effect">i</span>
+          <span class="italic effect">t</span>
+          <span class="italic effect">a</span>
+          <span class="italic effect">l</span>
+          <br />
+          experiences through expertise and innovation
+        </h2>
+        <button class="cta-button">
+          Contact
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 8H15M15 8L8 1M15 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
 
-                <nav class="footer-nav">
-                    <div class="nav-column">
-                        <h3 class="nav-title">Menu</h3>
-                        <ul class="nav-links">
-                            <li><a href="#home">Home</a></li>
-                            <li><a href="#work">Werk</a></li>
-                            <li><a href="#contact">Contact</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="nav-column">
-                        <h3 class="nav-title">Socials</h3>
-                        <ul class="nav-links">
-                            <li><a href="#linkedin">Linkedin</a></li>
-                            <li><a href="#instagram">Instagram</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="nav-column">
-                        <h3 class="nav-title">Contact</h3>
-                        <ul class="nav-links">
-                            <li><a href="mailto:victorarango.dev@gmail.com">victorarango.dev@gmail.com</a></li>
-                        </ul>
-                    </div>
-                </nav>
-            </div>
-
-            <div class="footer-brand">
-                <div class="brand-text">va dev</div>
-            </div>
+      <nav class="footer-nav">
+        <div class="nav-column">
+          <h3 class="nav-title">Menu</h3>
+          <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#work">Werk</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
         </div>
-    </footer>
+
+        <div class="nav-column">
+          <h3 class="nav-title">Socials</h3>
+          <ul class="nav-links">
+            <li><a href="#linkedin">Linkedin</a></li>
+            <li><a href="#instagram">Instagram</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-column">
+          <h3 class="nav-title">Contact</h3>
+          <ul class="nav-links">
+            <li><a href="mailto:victorarango.dev@gmail.com">victorarango.dev@gmail.com</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div class="footer-brand">
+      <div class="brand-text">va dev</div>
+    </div>
+  </div>
+</footer>
 
 <script>
   import { gsap } from "gsap";
-  import ScrollTrigger from "gsap/dist/ScrollTrigger";
-  import { SplitText } from "gsap/dist/SplitText";
-  gsap.registerPlugin(ScrollTrigger,SplitText );
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  import { SplitText } from "gsap/SplitText";
 
-  let split = SplitText.create(".effect", {type:"words, chars"})
-  let splitMenuItems = SplitText.create(".nav-title", {type:"words, chars"})
+  gsap.registerPlugin(ScrollTrigger, SplitText);
 
-const tl = gsap.timeline({
-  scrollTrigger: {
-    trigger: ".section_footer",
-    start: "top 70%",
-    end: "top 100%",
-     toggleActions: "play none none reset",
-  }
-});
+  // ── matchMedia: handles responsive + prefers-reduced-motion ───────────────
+  const mm = gsap.matchMedia();
 
-
-tl.fromTo(
-  ".brand-text",
-  {
-    y: 500,
-    opacity: 0,
-    scale: 0.95,
-    ease:"rough.in"
-  },
-  {
-    y: -50,
-    opacity: 1,
-    scale: 1,
-    ease: "rough.in",
-    color: "var(--stroke-color)",
-  },
-  0.2
-);
-
-
-  tl.fromTo(".footer-heading",{
-      opacity:0,
-      stagger: 0.1,
-      ease: "rough.out",
-    },
+  mm.add(
     {
-       duration: 0.9,
-        opacity: 1,
-       
-        stagger: 0.1,
-        ease: "rough.in",
+      isDesktop: "(min-width: 769px)",
+      isMobile: "(max-width: 768px)",
+      reduceMotion: "(prefers-reduced-motion: reduce)",
+    },
+    (context) => {
+      const { isDesktop, reduceMotion } = context.conditions as {
+        isDesktop: boolean;
+        isMobile: boolean;
+        reduceMotion: boolean;
+      };
+
+      // ── SplitText ──────────────────────────────────────────────────────────
+      const splitEffect = SplitText.create(".effect", { type: "chars" });
+      const splitTitles = SplitText.create(".nav-title", { type: "chars" });
+
+      if (reduceMotion) {
+        gsap.set(
+          [
+            ".brand-text",
+            ".footer-heading",
+            ".cta-button",
+            ".nav-column",
+            ".nav-links li",
+          ],
+          { opacity: 1, clearProps: "all" }
+        );
+        // Cleanup SplitText on context revert
+        return () => {
+          splitEffect.revert();
+          splitTitles.revert();
+        };
+      }
+
+      // ── Master timeline ────────────────────────────────────────────────────
+      const tl = gsap.timeline({ paused: isDesktop });
+
+      // Brand: slide up from bottom (big text)
+      tl.fromTo(
+        ".brand-text",
+        { autoAlpha: 0, y: isDesktop ? 120 : 60, scale: 0.92 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 1.1,
+          ease: "power4.out",
+        },
+        0
+      );
+
+      // Heading: fade in from below
+      tl.fromTo(
+        ".footer-heading",
+        { autoAlpha: 0, y: 30 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.85,
+          ease: "power3.out",
+        },
+        0.2
+      );
+
+      // CTA button: slide from left
+      tl.fromTo(
+        ".cta-button",
+        { autoAlpha: 0, x: isDesktop ? -50 : -25 },
+        {
+          autoAlpha: 1,
+          x: 0,
+          duration: 0.65,
+          ease: "power3.out",
+        },
+        0.45
+      );
+
+      // Nav columns: staggered entrance
+      tl.fromTo(
+        ".nav-column",
+        { autoAlpha: 0, y: 30, scale: 0.97 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.7,
+          stagger: 0.12,
+          ease: "power3.out",
+        },
+        0.35
+      );
+
+      // Nav links: staggered fade in
+      tl.fromTo(
+        ".nav-links li",
+        { autoAlpha: 0, x: -12 },
+        {
+          autoAlpha: 1,
+          x: 0,
+          duration: 0.55,
+          stagger: 0.06,
+          ease: "power2.out",
+        },
+        0.55
+      );
+
+      // Nav title chars: scatter in
+      tl.from(
+        splitTitles.chars,
+        {
+          autoAlpha: 0,
+          y: 16,
+          duration: 0.5,
+          stagger: 0.025,
+          ease: "power2.out",
+        },
+        0.5
+      );
+
+      // "digital" chars: scale pop-in
+      tl.from(splitEffect.chars, {
+        autoAlpha: 0,
+        scale: 3.5,
+        duration: 0.9,
+        stagger: 0.05,
+        ease: "power4.out",
+      }, "<");
+
+      // ── Triggering ─────────────────────────────────────────────────────────
+      if (isDesktop) {
+        const onEnter = (e: any) => {
+          if (e.detail.id === "contact") {
+            tl.restart();
+          }
+        };
+        window.addEventListener("section:entered", onEnter);
+        return () => {
+          window.removeEventListener("section:entered", onEnter);
+          splitEffect.revert();
+          splitTitles.revert();
+        };
+      } else {
+        ScrollTrigger.create({
+          trigger: ".section_footer",
+          start: "top 75%",
+          animation: tl,
+          toggleActions: "play none none none",
+        });
+        return () => {
+          splitEffect.revert();
+          splitTitles.revert();
+        };
+      }
     }
-  ),
-  0.2
-
-  tl.fromTo(".cta-button",{
-      opacity:0,
-      x:-200,
-    },
-    {
-      duration: 0.2,
-      opacity: 1,
-      x:0,
-      ease: "power4.in",
-    },
-    0.5
-  )
-
-gsap.from(split.chars, {
- autoAlpha: 0,
- delay:0.5,
-      scale: 4,
-      duration: 1,
-      ease: "power4.inOut",
-      scrollTrigger: {
-    trigger: ".section_footer",
-    start: "top 70%",
-    end: "top 100%",
-    toggleActions: "play none none reset",
-  }
-});
-
-
-gsap.from(split.chars, {
- autoAlpha: 0,
- delay:0.5,
-      scale: 4,
-      duration: 1,
-      ease: "power4.inOut",
-      scrollTrigger: {
-    trigger: ".section_footer",
-    start: "top 70%",
-    end: "top 100%",
-    toggleActions: "play none none reset",
-  }
-});
-
-gsap.fromTo(".nav-column", {
-  opacity: 0,
-  y: 40,
-  scale: 0.98,
-}, {
-  opacity: 1,
-  y: 0,
-  scale: 1,
-  duration: 0.8,
-  stagger: 0.15,
-  ease: "power3.out",
-  scrollTrigger: {
-    trigger: ".section_footer",
-    start: "top 70%",
-    end: "top 100%",
-    toggleActions: "play none none reset",
-  }
-});
-
-gsap.from(splitMenuItems.chars, {
-  autoAlpha: 0,
-  y: 20,
-  duration: 0.6,
-  stagger: 0.03,
-  ease: "power2.out",
-  scrollTrigger: {
-    trigger: ".section_footer",
-    start: "top 70%",
-    end: "top 100%",
-    toggleActions: "play none none reset",
-  }
-});
-
-// Animación para los enlaces de navegación
-gsap.fromTo(".nav-links li", {
-  opacity: 0,
-  x: -15,
-}, {
-  opacity: 1,
-  x: 0,
-  duration: 1,
-  stagger: 0.08,
-  ease: "power2.out",
-  scrollTrigger: {
-    trigger: ".section_footer",
-    start: "top 70%",
-    end: "top 100%",
-    toggleActions: "play none none reset",
-  }
-});
-
-
+  );
 </script>
