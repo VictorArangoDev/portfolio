@@ -244,7 +244,7 @@ const { title } = Astro.props;
 
 		function introAnimation() {
 			gsap.delayedCall(0.3, () => {
-				const tl = gsap.timeline({ onComplete: () => gsap.delayedCall(0.5, exitAnimation) });
+				const tl = gsap.timeline({ onComplete: () => { gsap.delayedCall(0.5, exitAnimation); } });
 				tl.to(leftLogo,   { x: -500, duration: cfg.reveal.duration, ease: cfg.reveal.ease });
 				tl.to(rightLogo,  { x:  500, duration: cfg.reveal.duration, ease: cfg.reveal.ease }, 0);
 				tl.to(centerLogo, { opacity: 0, duration: cfg.reveal.duration * 0.5, ease: "power2.out" }, cfg.reveal.duration * 0.5);

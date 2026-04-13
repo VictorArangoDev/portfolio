@@ -5,7 +5,6 @@ import projects from "../data/projects.json";
 <section class="section h-container" id="work" data-type="horizontal">
   <div class="projects-grid-bg"></div>
 
-  <!-- Meta Info -->
   <div class="projects-meta">
     <span class="projects-meta__label">Index</span>
     <span class="projects-meta__count js-count"
@@ -13,7 +12,6 @@ import projects from "../data/projects.json";
     >
   </div>
 
-  <!-- Dots Navigation -->
   <nav class="projects-nav" aria-label="Projects navigation">
     {
       projects.map((_, i) => (
@@ -26,7 +24,6 @@ import projects from "../data/projects.json";
     }
   </nav>
 
-  <!-- Progress Bar -->
   <div class="projects-progress">
     <div class="projects-progress__fill js-fill"></div>
   </div>
@@ -42,7 +39,9 @@ import projects from "../data/projects.json";
           <span class="panel__cat">
             {project.category} • {project.year}
           </span>
-          <h2 class="panel__title">{project.title} Factura</h2>
+          <h2 class="panel__title">{project.title}
+            
+          </h2>
           <p class="panel__desc">{project.description}</p>
 
           <ul class="panel__tags">
@@ -63,7 +62,7 @@ import projects from "../data/projects.json";
           {project.visual.type === "number" ? (
             <span class="panel__visual-num">{project.visual.value}</span>
           ) : (
-            <img src={project.visual.url} alt={project.id} class="panel__img" />
+            <img src={project.visual.value} alt={project.id} class="panel__img" />
           )}
         </div>
       </article>
@@ -324,12 +323,13 @@ import projects from "../data/projects.json";
     }
 
     .projects-nav {
-      left: 50%;
-      bottom: 4rem;
-      right: auto;
-      transform: translateX(-50%);
-      flex-direction: row;
-      gap: 1rem;
+        left: 78%;
+        bottom: 3rem;
+        right: auto;
+        transform: translateX(-50%);
+        flex-direction: row;
+        gap: 1rem;
+    }
     }
 
     .projects-nav__dot {
@@ -368,6 +368,7 @@ import projects from "../data/projects.json";
   }
 </style>
 
+
 <script>
   import { gsap } from "gsap";
   import { SplitText } from "gsap/SplitText";
@@ -375,213 +376,293 @@ import projects from "../data/projects.json";
 
   gsap.registerPlugin(SplitText, Observer);
 
-  const panels = gsap.utils.toArray<HTMLElement>(".h-panel");
-  const dots = gsap.utils.toArray<HTMLButtonElement>(".projects-nav__dot");
-  const countEl = document.querySelector<HTMLElement>(".js-count");
-  const fillEl = document.querySelector<HTMLElement>(".js-fill");
-  const gridBg = document.querySelector<HTMLElement>(".projects-grid-bg");
-  const total = panels.length;
-
-  let currentPanelIndex = 0;
-  let isAnimating = false;
-  let hasFirstAnimated = false;
-
-  const splitTitles = panels.map((p) => {
-    const title = p.querySelector(".panel__title");
-    return title ? new SplitText(title, { type: "chars" }) : null;
+  // ── FIX #5: Usar requestAnimationFrame doble para garantizar hidratación ──
+  // En Astro con View Transitions el script puede correr antes de que el DOM
+  // esté pintado. El doble rAF asegura que el layout ya existe.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      init();
+    });
   });
 
-  function updateUI(index: number) {
-    const panel = panels[index];
-    const accent = getComputedStyle(panel).getPropertyValue("--accent").trim();
-    if (countEl)
-      countEl.textContent = `— ${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
-    if (fillEl) {
-      gsap.to(fillEl, {
-        scaleX: (index + 1) / total,
-        duration: 0.8,
-        ease: "expo.out",
-        backgroundColor: accent,
+  function init() {
+    const panels = gsap.utils.toArray<HTMLElement>(".h-panel");
+    const dots = gsap.utils.toArray<HTMLButtonElement>(".projects-nav__dot");
+    const countEl = document.querySelector<HTMLElement>(".js-count");
+    const fillEl = document.querySelector<HTMLElement>(".js-fill");
+    const gridBg = document.querySelector<HTMLElement>(".projects-grid-bg");
+    const total = panels.length;
+
+    let currentPanelIndex = 0;
+    let isAnimating = false;
+    let hasFirstAnimated = false;
+
+    // ── FIX #1 + #4: SplitText dentro de init(), después del doble rAF ──────
+    // Se crean aquí (no en top-level) para garantizar que el DOM está listo.
+    // La función recreateSplits() permite rehacerlos limpiamente al hacer revert.
+    let splitTitles: (SplitText | null)[] = [];
+
+    function recreateSplits() {
+      // FIX #4: revert splits anteriores antes de recrear
+      splitTitles.forEach((s) => s?.revert());
+      splitTitles = panels.map((p) => {
+        const title = p.querySelector<HTMLElement>(".panel__title");
+        if (!title) return null;
+        return new SplitText(title, { type: "chars" });
       });
     }
-    dots.forEach((dot, i) => {
-      dot.setAttribute("aria-current", i === index ? "true" : "false");
-      if (i === index) dot.style.setProperty("--accent", accent);
+
+    recreateSplits();
+
+    // ── Setup inicial ─────────────────────────────────────────────────────────
+    gsap.set(panels, { autoAlpha: 0, x: 0 });
+    panels[0].classList.add("is-active");
+    gsap.set(panels[0], { autoAlpha: 1 });
+    updateUI(0);
+
+    // FIX #2: Solo ocultar chars de paneles NO activos.
+    // El panel[0] se animará en la entrada, así que también lo ocultamos,
+    // pero SOLO si esperamos el evento section:entered. Si no hay event system,
+    // animamos inmediatamente como fallback.
+    splitTitles.forEach((s, i) => {
+      if (s) gsap.set(s.chars, { autoAlpha: 0, y: 60 });
     });
-  }
 
-  function animatePanel(
-    inPanel: HTMLElement,
-    outPanel: HTMLElement | null,
-    direction: number,
-  ) {
-    if (isAnimating) return;
-    isAnimating = true;
+    dots.forEach((dot, i) => dot.addEventListener("click", () => goToPanel(i)));
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        isAnimating = false;
-      },
-    });
-    const split = splitTitles[panels.indexOf(inPanel)];
+    (window as any).__projectsGoToPanel = (i: number) => goToPanel(i);
+    (window as any).__projectsPanelCount = total;
+    (window as any).__projectsCurrentPanel = () => currentPanelIndex;
 
-    if (gridBg) {
-      gsap.to(gridBg, { x: -direction * 40, duration: 2, ease: "power2.out" });
+    // ── FIX #5: Fallback si section:entered ya se disparó (race condition) ───
+    // Verificamos si la sección ya es visible con IntersectionObserver como
+    // fallback además del evento personalizado.
+    const sectionEl = document.querySelector<HTMLElement>("#work");
+
+    const onEnterSection = (e: any) => {
+      if (e.detail?.id === "work" && !hasFirstAnimated) {
+        hasFirstAnimated = true;
+        animatePanel(panels[0], null, 1);
+      }
+    };
+    window.addEventListener("section:entered", onEnterSection);
+
+    // Fallback: IntersectionObserver por si el evento nunca llega
+    if (sectionEl) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && !hasFirstAnimated) {
+            hasFirstAnimated = true;
+            animatePanel(panels[0], null, 1);
+          }
+        },
+        { threshold: 0.3 },
+      );
+      io.observe(sectionEl);
+
+      // Limpieza del observer también en cleanup
+      (window as any).__projectsCleanup = () => {
+        window.removeEventListener("section:entered", onEnterSection);
+        io.disconnect();
+        splitTitles.forEach((s) => s?.revert());
+      };
     }
 
-    if (outPanel) {
-      const outSplit = splitTitles[panels.indexOf(outPanel)];
-      if (outSplit) {
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function updateUI(index: number) {
+      const panel = panels[index];
+      const accent = getComputedStyle(panel).getPropertyValue("--accent").trim();
+      if (countEl)
+        countEl.textContent = `— ${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
+      if (fillEl) {
+        gsap.to(fillEl, {
+          scaleX: (index + 1) / total,
+          duration: 0.8,
+          ease: "expo.out",
+          backgroundColor: accent,
+        });
+      }
+      dots.forEach((dot, i) => {
+        dot.setAttribute("aria-current", i === index ? "true" : "false");
+        if (i === index) dot.style.setProperty("--accent", accent);
+      });
+    }
+
+    function animatePanel(
+      inPanel: HTMLElement,
+      outPanel: HTMLElement | null,
+      direction: number,
+    ) {
+      if (isAnimating) return;
+      isAnimating = true;
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          isAnimating = false;
+        },
+      });
+
+      const inIndex = panels.indexOf(inPanel);
+      const split = splitTitles[inIndex];
+
+      if (gridBg) {
+        gsap.to(gridBg, {
+          x: -direction * 40,
+          duration: 2,
+          ease: "power2.out",
+        });
+      }
+
+      // ── FIX #3: Calcular offset de overlap dinámicamente ─────────────────
+      // Si no hay outPanel (primer render), la animación de entrada empieza
+      // en t=0 sin overlap negativo que pueda producir t<0.
+      const hasOut = outPanel !== null;
+      const overlapIn = hasOut ? "-=0.6" : "0";       // panel slide-in
+      const overlapChars = hasOut ? "-=0.7" : "-=0.7"; // chars siempre relativo a slide-in
+      const overlapInfo = hasOut ? "-=0.6" : "-=0.5";
+      const overlapVisual = hasOut ? "-=1" : "-=0.9";
+
+      if (hasOut) {
+        const outIndex = panels.indexOf(outPanel!);
+        const outSplit = splitTitles[outIndex];
+        if (outSplit) {
+          tl.to(
+            outSplit.chars,
+            {
+              y: direction > 0 ? -40 : 40,
+              autoAlpha: 0,
+              stagger: 0.02,
+              duration: 0.2,
+              ease: "power2.in",
+            },
+            0,
+          );
+        }
         tl.to(
-          outSplit.chars,
+          outPanel!,
           {
-            y: direction > 0 ? -40 : 40,
             autoAlpha: 0,
-            stagger: 0.02,
+            x: direction > 0 ? -100 : 100,
+            filter: "blur(10px)",
+            scale: 0.95,
             duration: 0.4,
-            ease: "power2.in",
+            ease: "expo.inOut",
+            onComplete: () => outPanel!.classList.remove("is-active"),
           },
           0,
         );
       }
-      tl.to(
-        outPanel,
-        {
-          autoAlpha: 0,
-          x: direction > 0 ? -100 : 100,
-          filter: "blur(10px)",
-          scale: 0.95,
-          duration: 0.8,
-          ease: "expo.inOut",
-          onComplete: () => outPanel.classList.remove("is-active"),
-        },
-        0,
-      );
-    }
 
-    tl.fromTo(
-      inPanel,
-      {
-        autoAlpha: 0,
-        x: direction > 0 ? 100 : -100,
-        scale: 0.95,
-        filter: "blur(10px)",
-      },
-      {
-        autoAlpha: 1,
-        x: 0,
-        scale: 1,
-        filter: "blur(0px)",
-        duration: 1.2,
-        ease: "expo.inOut",
-        onStart: () => inPanel.classList.add("is-active"),
-      },
-      "-=0.6",
-    );
-
-    if (split) {
       tl.fromTo(
-        split.chars,
-        { y: direction > 0 ? 60 : -60, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          stagger: 0.03,
-          duration: 0.8,
-          ease: "back.out(1.4)",
-        },
-        "-=0.7",
-      );
-    }
-
-    const info = inPanel.querySelector(".panel__info")?.children;
-    if (info) {
-      tl.from(
-        gsap.utils
-          .toArray(info)
-          .filter((el) => !el.classList.contains("panel__title")),
+        inPanel,
         {
           autoAlpha: 0,
-          y: 20,
-          stagger: 0.08,
-          duration: 0.6,
-          ease: "power2.out",
+          x: direction > 0 ? 100 : -100,
+          scale: 0.95,
+          filter: "blur(10px)",
         },
-        "-=0.6",
+        {
+          autoAlpha: 1,
+          x: 0,
+          scale: 1,
+          filter: "blur(0px)",
+          duration: 0.6,
+          ease: "expo.inOut",
+          onStart: () => inPanel.classList.add("is-active"),
+        },
+        overlapIn,
       );
-    }
-    const visual = inPanel.querySelector(".panel__visual");
-    if (visual)
-      tl.from(
-        visual,
-        { scale: 1.1, autoAlpha: 0, duration: 1.2, ease: "expo.out" },
-        "-=1",
-      );
-  }
 
-  function goToPanel(nextIndex: number) {
-    if (nextIndex === currentPanelIndex || isAnimating) return;
-    if (nextIndex < 0 || nextIndex >= total) return;
-    const direction = nextIndex > currentPanelIndex ? 1 : -1;
-    const outPanel = panels[currentPanelIndex];
-    const inPanel = panels[nextIndex];
-    currentPanelIndex = nextIndex;
-    updateUI(nextIndex);
-    animatePanel(inPanel, outPanel, direction);
-  }
-
-  // ── Global Setup (Common to Mobile and Desktop) ──────────────────────────
-  gsap.set(panels, { autoAlpha: 0, x: 0 });
-  panels[0].classList.add("is-active");
-  gsap.set(panels[0], { autoAlpha: 1 });
-  updateUI(0);
-
-  // Pre-hide chars to avoid flash
-  splitTitles.forEach((s) => s && gsap.set(s.chars, { autoAlpha: 0 }));
-
-  dots.forEach((dot, i) => dot.addEventListener("click", () => goToPanel(i)));
-
-  (window as any).__projectsGoToPanel = (i: number) => goToPanel(i);
-  (window as any).__projectsPanelCount = total;
-  (window as any).__projectsCurrentPanel = () => currentPanelIndex;
-
-  const onEnterSection = (e: any) => {
-    if (e.detail.id === "work" && !hasFirstAnimated) {
-      hasFirstAnimated = true;
-      animatePanel(panels[0], null, 1);
-    }
-  };
-
-  window.addEventListener("section:entered", onEnterSection);
-
-  // ── Environment Specific Setup ──────────────────────────────────────────
-  const mm = gsap.matchMedia();
-  mm.add(
-    {
-      isDesktop: "(min-width: 851px)",
-      isMobile: "(max-width: 850px)",
-    },
-    (context) => {
-      const { isDesktop } = context.conditions as { isDesktop: boolean };
-
-      if (!isDesktop) {
-        const obs = Observer.create({
-          target: ".h-container",
-          type: "touch,pointer",
-          onLeft: () => goToPanel(currentPanelIndex + 1),
-          onRight: () => goToPanel(currentPanelIndex - 1),
-          tolerance: 60,
-          preventDefault: false,
-          dragMinimum: 10,
-        });
-        return () => obs.kill();
+      // FIX #1/#2: Asegurarse de que los chars están en estado inicial antes
+      // de animarlos (por si el split fue recreado o el estado quedó corrupto)
+      if (split) {
+        gsap.set(split.chars, { autoAlpha: 0, y: direction > 0 ? 60 : -60 });
+        tl.to(
+          split.chars,
+          {
+            y: 0,
+            autoAlpha: 1,
+            stagger: 0.03,
+            duration: 0.4,
+            ease: "back.out(1.4)",
+          },
+          overlapChars,
+        );
       }
-    },
-  );
 
-  // Cleanup on page reload / transition
-  (window as any).__projectsCleanup = () => {
-    window.removeEventListener("section:entered", onEnterSection);
-    splitTitles.forEach((s) => s?.revert());
-  };
+      const infoChildren = inPanel.querySelector(".panel__info")?.children;
+      if (infoChildren) {
+        const infoEls = gsap.utils
+          .toArray<Element>(infoChildren)
+          .filter((el) => !el.classList.contains("panel__title"));
+        tl.from(
+          infoEls,
+          {
+            autoAlpha: 0,
+            y: 20,
+            stagger: 0.08,
+            duration: 0.3,
+            ease: "power2.out",
+          },
+          overlapInfo,
+        );
+      }
+
+      const visual = inPanel.querySelector(".panel__visual");
+      if (visual) {
+        tl.from(
+          visual,
+          { scale: 1.1, autoAlpha: 0, duration: 0.6, ease: "expo.out" },
+          overlapVisual,
+        );
+      }
+    }
+
+    function goToPanel(nextIndex: number) {
+      if (nextIndex === currentPanelIndex || isAnimating) return;
+      if (nextIndex < 0 || nextIndex >= total) return;
+      const direction = nextIndex > currentPanelIndex ? 1 : -1;
+      const outPanel = panels[currentPanelIndex];
+      const inPanel = panels[nextIndex];
+      currentPanelIndex = nextIndex;
+      updateUI(nextIndex);
+      animatePanel(inPanel, outPanel, direction);
+    }
+
+    // ── FIX #4: Recrear splits en resize para evitar chars duplicados ────────
+    const mm = gsap.matchMedia();
+    mm.add(
+      {
+        isDesktop: "(min-width: 851px)",
+        isMobile: "(max-width: 850px)",
+      },
+      (context) => {
+        const { isDesktop } = context.conditions as { isDesktop: boolean };
+
+        // Recrear splits porque el tamaño de fuente cambió (clamp en title)
+        recreateSplits();
+
+        // Re-ocultar chars de paneles inactivos tras recrear
+        splitTitles.forEach((s, i) => {
+          if (s && i !== currentPanelIndex) {
+            gsap.set(s.chars, { autoAlpha:0, y: 0 });
+          }
+        });
+
+        if (!isDesktop) {
+          const obs = Observer.create({
+            target: ".h-container",
+            type: "touch,pointer",
+            onLeft: () => goToPanel(currentPanelIndex + 1),
+            onRight: () => goToPanel(currentPanelIndex - 1),
+            tolerance: 60,
+            preventDefault: false,
+            dragMinimum: 10,
+          });
+          // FIX #4: cleanup correcto del observer en mm
+          return () => obs.kill();
+        }
+      },
+    );
+  }
 </script>
