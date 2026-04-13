@@ -517,7 +517,7 @@ svg {
 /* ============media queries============= */
 /* =====pantallas pequeñas====== */
 
-@media screen and (max-widht: 350px) {
+@media screen and (max-width: 350px) {
 
   .container {
     margin-left: var(--mb-1);
@@ -526,7 +526,7 @@ svg {
 }
 
 /* =====pantallas Medianas====== */
-@media screen and (min-widht: 568px) {}
+@media screen and (min-width: 568px) {}
 
 @media screen and (min-width: 768px) {
   .container {

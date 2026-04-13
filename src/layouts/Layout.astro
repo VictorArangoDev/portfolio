@@ -275,8 +275,13 @@ const { title } = Astro.props;
 
 	gsap.registerPlugin(Observer, ScrollTrigger);
 
-	const DESKTOP_MQ = "(min-width: 769px)";
+	const DESKTOP_MQ = "(min-width: 851px)";
 	const REDUCE_MQ  = "(prefers-reduced-motion: reduce)";
+
+  // Configuración global para mejor compatibilidad móvil
+  ScrollTrigger.config({
+    ignoreMobileResize: true, // Evita saltos por cambios en la barra de direcciones
+  });
 
 	function initScrollSystem() {
 		// ── Teardown instancia anterior ─────────────────────────────────────────
@@ -415,6 +420,12 @@ const { title } = Astro.props;
 			});
 		} else {
 			// Mobile / reduced-motion: scroll nativo, mostrar todo
+      // Normalizamos el scroll para evitar el efecto de "rebote" y parpadeo en móviles
+      ScrollTrigger.normalizeScroll({
+        allowNestedScroll: true,
+        momentum: (self) => Math.min(3, self.velocityY / 1000)
+      });
+
 			sections.forEach((s) => {
 				gsap.set(s, { position: "relative", autoAlpha: 1, yPercent: 0, zIndex: "auto", visibility: "visible" });
 			});
